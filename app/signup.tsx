@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'expo-router';
 import {
   View,
   Text,
@@ -59,7 +60,7 @@ export default function SignupScreen() {
       </View>
 
       <TouchableOpacity style={styles.signupButton}>
-        <Text style={styles.signupButtonText}>Sign up</Text>
+      <Link href='/joinoptions'><Text style={styles.signupButtonText}>Sign up</Text></Link>
       </TouchableOpacity>
 
       <Text style={styles.orText}>or Login with</Text>

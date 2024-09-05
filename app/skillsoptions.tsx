@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, CheckBox, FlatList, Modal } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
-
+import { Link } from 'expo-router';
 
 
 export default function Selectskills() {
@@ -28,7 +28,7 @@ export default function Selectskills() {
     <View style={styles.container}>
       {/* Back Button */}
       <TouchableOpacity style={styles.backButton}>
-        <AntDesign name="arrowleft" size={24} color="black" />
+      <Link href='/joinoptions'><AntDesign name="arrowleft" size={24} color="black" /></Link>
       </TouchableOpacity>
 
       {/* Header Text */}

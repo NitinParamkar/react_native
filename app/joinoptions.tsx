@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, CheckBox, FlatList, Modal } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
+import { Link } from 'expo-router';
 
 
 
@@ -24,8 +25,8 @@ export default function JoinAsLearnerAndGuru() {
   return (
     <View style={styles.container}>
       {/* Back Button */}
-      <TouchableOpacity style={styles.backButton}>
-        <AntDesign name="arrowleft" size={24} color="black" />
+       <TouchableOpacity style={styles.backButton}>
+       <Link href='/signup'><AntDesign name="arrowleft" size={24} color="black" /></Link>
       </TouchableOpacity>
 
       {/* Header Text */}
@@ -74,9 +75,9 @@ export default function JoinAsLearnerAndGuru() {
 
       {/* Next Button */}
       <TouchableOpacity style={styles.nextButton}>
-        <Text style={styles.nextButtonText}>
+      <Link href='/skillsoptions'><Text style={styles.nextButtonText}>
           Next <AntDesign name="arrowright" size={16} color="#FFFFFF" />
-        </Text>
+        </Text></Link>
       </TouchableOpacity>
     </View>
   );
