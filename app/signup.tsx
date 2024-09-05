@@ -1,15 +1,7 @@
 import React, { useState } from 'react';
-import { Link } from 'expo-router';
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  Image,
-} from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { AntDesign, FontAwesome5 } from '@expo/vector-icons';
-import { Colors } from './../constants/Colors';
+import { useRouter } from 'expo-router';  // Import useRouter for navigation
 
 export default function SignupScreen() {
   const [fullName, setFullName] = useState('');
@@ -17,20 +9,63 @@ export default function SignupScreen() {
   const [password, setPassword] = useState('');
   const [hidePassword, setHidePassword] = useState(true);
 
+  // Error states for the input fields
+  const [fullNameError, setFullNameError] = useState(false);
+  const [emailError, setEmailError] = useState(false);
+  const [passwordError, setPasswordError] = useState(false);
+
+  const router = useRouter();  // Initialize router for redirection
+
+  // Function to handle Sign Up validation
+  const handleSignUp = () => {
+    // Reset error states
+    let hasError = false;
+    if (!fullName) {
+      setFullNameError(true);
+      hasError = true;
+    } else {
+      setFullNameError(false);
+    }
+
+    if (!email) {
+      setEmailError('This field is required');
+      hasError = true;
+    } else if (!email.endsWith('@gmail.com')) {
+      setEmailError('Enter valid email');
+      hasError = true;
+    } else {
+      setEmailError(null);
+    }
+
+    if (!password) {
+      setPasswordError(true);
+      hasError = true;
+    } else {
+      setPasswordError(false);
+    }
+
+    // If all fields are filled, redirect to joinoptions page
+    if (!hasError) {
+      router.push('/joinoptions');  // Redirect when validation passes
+    }
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.welcomeText}>Welcome!</Text>
       <Text style={styles.subText}>Unlock Potential or Share Wisdom</Text>
 
       <TextInput
-        style={styles.input}
+        style={[styles.input, fullNameError && styles.errorInput]}  // Apply error style if field is empty
         placeholder="Your full name"
         placeholderTextColor="#B0B0B0"
         value={fullName}
         onChangeText={setFullName}
       />
+      {fullNameError && <Text style={styles.errorText}>This field is required</Text>}  {/* Show error message */}
+
       <TextInput
-        style={styles.input}
+        style={[styles.input, emailError && styles.errorInput]}  // Apply error style if field is empty
         placeholder="Email address"
         placeholderTextColor="#B0B0B0"
         value={email}
@@ -38,7 +73,8 @@ export default function SignupScreen() {
         keyboardType="email-address"
         autoCapitalize="none"
       />
-      <View style={styles.passwordContainer}>
+      {emailError && <Text style={styles.errorText}>{emailError}</Text>} {/* Show error message */}
+      <View style={[styles.passwordContainer, passwordError && styles.errorInput]}>
         <TextInput
           style={styles.passwordInput}
           placeholder="Create password"
@@ -58,20 +94,21 @@ export default function SignupScreen() {
           />
         </TouchableOpacity>
       </View>
+      {passwordError && <Text style={styles.errorText}>This field is required</Text>}  {/* Show error message */}
 
-      <TouchableOpacity style={styles.signupButton}>
-      <Link href='/joinoptions'><Text style={styles.signupButtonText}>Sign up</Text></Link>
+      <TouchableOpacity style={styles.signupButton} onPress={handleSignUp}>
+        <Text style={styles.signupButtonText}>Sign up</Text>
       </TouchableOpacity>
 
       <Text style={styles.orText}>or Login with</Text>
 
       <View style={styles.socialButtons}>
         <TouchableOpacity style={styles.socialButton}>
-        <Image
-          style={{ width: 24, height: 24 }}
-          source={require('../assets/images/google.png')}
-        />
-      </TouchableOpacity>
+          <Image
+            style={{ width: 24, height: 24 }}
+            source={require('../assets/images/google.png')}
+          />
+        </TouchableOpacity>
 
         <TouchableOpacity style={styles.socialButton}>
           <AntDesign name="linkedin-square" size={24} color="#0077B5" />
@@ -110,7 +147,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 12,
     fontSize: 16,
-    marginBottom: 15,
+    marginBottom: 5,  // Adjusted to add error text margin
     backgroundColor: '#F7F7F7',
   },
   passwordContainer: {
@@ -119,7 +156,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#E0E0E0',
     borderRadius: 8,
-    marginBottom: 15,
+    marginBottom: 5,  // Adjusted to add error text margin
     backgroundColor: '#F7F7F7',
   },
   passwordInput: {
@@ -164,5 +201,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     width: 60,
+  },
+  // Style for the error input with red border and shadow effect
+  errorInput: {
+    borderColor: 'red',
+    shadowColor: 'red',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.8,
+    shadowRadius: 2,
+    elevation: 5, // Shadow effect for Android
+  },
+  // Style for the error message text
+  errorText: {
+    color: 'red',
+    fontSize: 12,
+    marginBottom: 10,
   },
 });
