@@ -9,11 +9,8 @@ export default function JoinAsLearnerAndGuru() {
   const [selectedRoles, setSelectedRoles] = useState([]);
 
   const options = [
-    { label: 'Figma', value: 'Figma' },
-    { label: 'App Development', value: 'App Development' },
-    { label: 'Power Bi', value: 'Power Bi' },
-    { label: 'Photoshop', value: 'Photoshop' },
-    { label: 'Web Development', value: 'Web Development' },
+    { label: 'Learner', value: 'Learner' },
+    { label: 'Guru', value: 'Guru' },
   ];
 
   const toggleRole = (value) => {
@@ -107,7 +104,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: 'center',
     color: '#A0A0A0',
-    marginBottom: '40%',
+    marginBottom: 180,
   },
   dropdownButton: {
     flexDirection: 'row',
@@ -120,7 +117,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: '#F7F7F7',
     marginLeft: '20%',
-    marginBottom: '50%',
+    marginBottom: 180,
     width: '60%',
   },
   dropdownText: {

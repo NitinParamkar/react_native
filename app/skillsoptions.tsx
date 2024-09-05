@@ -9,8 +9,11 @@ export default function Selectskills() {
   const [selectedRoles, setSelectedRoles] = useState([]);
 
   const options = [
-    { label: 'Learner', value: 'Learner' },
-    { label: 'Guru', value: 'Guru' },
+    { label: 'Figma', value: 'Figma' },
+    { label: 'App Development', value: 'App Development' },
+    { label: 'Power Bi', value: 'Power Bi' },
+    { label: 'Photoshop', value: 'Photoshop' },
+    { label: 'Web Development', value: 'Web Development' },
   ];
 
   const toggleRole = (value) => {
@@ -104,7 +107,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: 'center',
     color: '#A0A0A0',
-    marginBottom: '40%',
+    marginBottom: 180,
   },
   dropdownButton: {
     flexDirection: 'row',
@@ -118,7 +121,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F7F7F7',
     marginLeft: '20%',
     width: '60%',
-    marginBottom: '50%',
+    marginBottom: 180,
   },
   dropdownText: {
     fontSize: 16,
