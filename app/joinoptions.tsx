@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, CheckBox, FlatList, Modal } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
-import { Link } from 'expo-router';
-
-
+import { useRouter } from 'expo-router';
 
 export default function JoinAsLearnerAndGuru() {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedRoles, setSelectedRoles] = useState([]);
+  const router = useRouter();
 
   const options = [
     { label: 'Learner', value: 'Learner' },
@@ -22,11 +21,28 @@ export default function JoinAsLearnerAndGuru() {
     }
   };
 
+  const handleNext = () => {
+    let subText = '';
+
+    if (selectedRoles.includes('Guru') && selectedRoles.includes('Learner')) {
+      subText = 'Learn, Guide, and Inspire';
+    } else if (selectedRoles.includes('Guru')) {
+      subText = 'Guide and Inspire';
+    } else if (selectedRoles.includes('Learner')) {
+      subText = 'Discover, ask, and grow';
+    }
+
+    router.push({
+      pathname: '/skillsoptions',
+      params: { subText },
+    });
+  };
+
   return (
     <View style={styles.container}>
       {/* Back Button */}
-       <TouchableOpacity style={styles.backButton}>
-       <Link href='/signup'><AntDesign name="arrowleft" size={24} color="black" /></Link>
+      <TouchableOpacity style={styles.backButton}>
+        <AntDesign name="arrowleft" size={24} color="black" onPress={() => router.back()} />
       </TouchableOpacity>
 
       {/* Header Text */}
@@ -35,10 +51,9 @@ export default function JoinAsLearnerAndGuru() {
 
       {/* Dropdown Button */}
       <TouchableOpacity style={styles.dropdownButton} onPress={() => setModalVisible(true)}>
-      <Text style={[styles.dropdownText, { color: selectedRoles.length === 0 ? '#D3D3D3' : 'black' }]}>
-         {selectedRoles.length > 0 ? selectedRoles.join(', ') : 'Choose your role here'}
-      </Text>
-
+        <Text style={[styles.dropdownText, { color: selectedRoles.length === 0 ? '#D3D3D3' : 'black' }]}>
+          {selectedRoles.length > 0 ? selectedRoles.join(', ') : 'Choose your role here'}
+        </Text>
         <AntDesign name="down" size={20} color="#D3D3D3" />
       </TouchableOpacity>
 
@@ -74,10 +89,10 @@ export default function JoinAsLearnerAndGuru() {
       </Modal>
 
       {/* Next Button */}
-      <TouchableOpacity style={styles.nextButton}>
-      <Link href='/skillsoptions'><Text style={styles.nextButtonText}>
+      <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
+        <Text style={styles.nextButtonText}>
           Next <AntDesign name="arrowright" size={16} color="#FFFFFF" />
-        </Text></Link>
+        </Text>
       </TouchableOpacity>
     </View>
   );
@@ -169,7 +184,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     alignItems: 'center',
     marginTop: 30,
-    width:'40%',
+    width: '40%',
     marginLeft: '30%',
   },
   nextButtonText: {

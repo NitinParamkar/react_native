@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, CheckBox, FlatList, Modal } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
-import { Link } from 'expo-router';
+import { Link, useLocalSearchParams } from 'expo-router';
 
 
 export default function Selectskills() {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedRoles, setSelectedRoles] = useState([]);
+  const local = useLocalSearchParams();
 
   const options = [
     { label: 'Figma', value: 'Figma' },
@@ -33,7 +34,7 @@ export default function Selectskills() {
 
       {/* Header Text */}
       <Text style={styles.headerText}>Unlock your potential</Text>
-      <Text style={styles.subText}>Discover, ask, and grow</Text>
+      <Text style={styles.subText}>{local.subText}</Text>
 
       {/* Dropdown Button */}
       <TouchableOpacity style={styles.dropdownButton} onPress={() => setModalVisible(true)}>
