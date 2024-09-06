@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, CheckBox, FlatList, Modal } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
-import { Link, useLocalSearchParams } from 'expo-router';
-
+import { useRouter } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 
 export default function Selectskills() {
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedRoles, setSelectedRoles] = useState([]);
+  const [selectedSkills, setSelectedSkills] = useState([]); // Renamed to selectedSkills for clarity
+  const [showError, setShowError] = useState(false); // To track if no skills are selected
+  
+  const router = useRouter();
   const local = useLocalSearchParams();
 
   const options = [
@@ -17,19 +20,31 @@ export default function Selectskills() {
     { label: 'Web Development', value: 'Web Development' },
   ];
 
-  const toggleRole = (value) => {
-    if (selectedRoles.includes(value)) {
-      setSelectedRoles(selectedRoles.filter(role => role !== value));
+  const toggleSkill = (value) => {
+    if (selectedSkills.includes(value)) {
+      setSelectedSkills(selectedSkills.filter(skill => skill !== value));
     } else {
-      setSelectedRoles([...selectedRoles, value]);
+      setSelectedSkills([...selectedSkills, value]);
     }
+    setShowError(false); // Remove error when skill is selected
+  };
+
+  const handleNext = () => {
+    if (selectedSkills.length === 0) {
+      setShowError(true); // Show error if no skill is selected
+      return;
+    }
+
+    router.push({
+      pathname: '/contact',
+    });
   };
 
   return (
     <View style={styles.container}>
       {/* Back Button */}
       <TouchableOpacity style={styles.backButton}>
-      <Link href='/joinoptions'><AntDesign name="arrowleft" size={24} color="black" /></Link>
+        <AntDesign name="arrowleft" size={24} color="black" onPress={() => router.back()} />
       </TouchableOpacity>
 
       {/* Header Text */}
@@ -37,13 +52,18 @@ export default function Selectskills() {
       <Text style={styles.subText}>{local.subText}</Text>
 
       {/* Dropdown Button */}
-      <TouchableOpacity style={styles.dropdownButton} onPress={() => setModalVisible(true)}>
-      <Text style={[styles.dropdownText, { color: selectedRoles.length === 0 ? '#D3D3D3' : 'black' }]}>
-         {selectedRoles.length > 0 ? selectedRoles.join(', ') : 'Choose your role here'}
-      </Text>
-
+      <TouchableOpacity
+        style={[styles.dropdownButton, showError && { borderColor: 'red' }]} // Highlight border if error
+        onPress={() => setModalVisible(true)}
+      >
+        <Text style={[styles.dropdownText, { color: selectedSkills.length === 0 ? '#D3D3D3' : 'black' }]}>
+          {selectedSkills.length > 0 ? selectedSkills.join(', ') : 'Choose your skills here'}
+        </Text>
         <AntDesign name="down" size={20} color="#D3D3D3" />
       </TouchableOpacity>
+
+      {/* Error message */}
+      {showError && <Text style={styles.errorText}>Please select your skills</Text>}
 
       {/* Modal */}
       <Modal
@@ -59,11 +79,11 @@ export default function Selectskills() {
               renderItem={({ item }) => (
                 <TouchableOpacity
                   style={styles.optionContainer}
-                  onPress={() => toggleRole(item.value)}
+                  onPress={() => toggleSkill(item.value)}
                 >
                   <CheckBox
-                    value={selectedRoles.includes(item.value)}
-                    onValueChange={() => toggleRole(item.value)}
+                    value={selectedSkills.includes(item.value)}
+                    onValueChange={() => toggleSkill(item.value)}
                   />
                   <Text style={styles.optionLabel}>{item.label}</Text>
                 </TouchableOpacity>
@@ -77,7 +97,7 @@ export default function Selectskills() {
       </Modal>
 
       {/* Next Button */}
-      <TouchableOpacity style={styles.nextButton}>
+      <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
         <Text style={styles.nextButtonText}>
           Next <AntDesign name="arrowright" size={16} color="#FFFFFF" />
         </Text>
@@ -127,6 +147,11 @@ const styles = StyleSheet.create({
   dropdownText: {
     fontSize: 16,
     color: 'black',
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 14,
+    textAlign: 'center',
   },
   modalContainer: {
     flex: 1,

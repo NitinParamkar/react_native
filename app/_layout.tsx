@@ -7,6 +7,8 @@ export default function RootLayout() {
       <Stack.Screen name="joinoptions" options={{headerShown: false}}/>
       <Stack.Screen name="skillsoptions" options={{headerShown: false}}/>
       <Stack.Screen name="signup" options={{headerShown: false}}/>
+      <Stack.Screen name="contact" options={{headerShown: false}}/>
+      <Stack.Screen name="home" options={{headerShown: false}}/>
     </Stack>
   );
 }

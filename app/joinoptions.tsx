@@ -6,6 +6,7 @@ import { useRouter } from 'expo-router';
 export default function JoinAsLearnerAndGuru() {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedRoles, setSelectedRoles] = useState([]);
+  const [showError, setShowError] = useState(false); // To track if no role is selected
   const router = useRouter();
 
   const options = [
@@ -19,9 +20,15 @@ export default function JoinAsLearnerAndGuru() {
     } else {
       setSelectedRoles([...selectedRoles, value]);
     }
+    setShowError(false); // Remove error if any role is selected
   };
 
   const handleNext = () => {
+    if (selectedRoles.length === 0) {
+      setShowError(true); // Show error if no role is selected
+      return;
+    }
+
     let subText = '';
 
     if (selectedRoles.includes('Guru') && selectedRoles.includes('Learner')) {
@@ -50,12 +57,18 @@ export default function JoinAsLearnerAndGuru() {
       <Text style={styles.subText}>Learn and share.</Text>
 
       {/* Dropdown Button */}
-      <TouchableOpacity style={styles.dropdownButton} onPress={() => setModalVisible(true)}>
+      <TouchableOpacity
+        style={[styles.dropdownButton, showError && { borderColor: 'red' }]} // Highlight border if error
+        onPress={() => setModalVisible(true)}
+      >
         <Text style={[styles.dropdownText, { color: selectedRoles.length === 0 ? '#D3D3D3' : 'black' }]}>
           {selectedRoles.length > 0 ? selectedRoles.join(', ') : 'Choose your role here'}
         </Text>
         <AntDesign name="down" size={20} color="#D3D3D3" />
       </TouchableOpacity>
+
+      {/* Error message */}
+      {showError && <Text style={styles.errorText}>Please select your role</Text>}
 
       {/* Modal */}
       <Modal
@@ -133,12 +146,17 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: '#F7F7F7',
     marginLeft: '20%',
-    marginBottom: 180,
+    marginBottom: 180, // Adjusted margin to make space for the error message
     width: '60%',
   },
   dropdownText: {
     fontSize: 16,
     color: 'black',
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 14,
+    textAlign: 'center',
   },
   modalContainer: {
     flex: 1,
