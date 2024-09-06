@@ -17,13 +17,16 @@ export default function SignupScreen() {
 
   const handleSignUp = () => {
     let hasError = false;
+    
+    // Validate Full Name
     if (!fullName) {
       setFullNameError(true);
       hasError = true;
     } else {
       setFullNameError(false);
     }
-
+  
+    // Validate Email
     if (!email) {
       setEmailError('This field is required');
       hasError = true;
@@ -33,18 +36,31 @@ export default function SignupScreen() {
     } else {
       setEmailError(null);
     }
-
+  
+    // Validate Password
     if (!password) {
       setPasswordError(true);
       hasError = true;
     } else {
       setPasswordError(false);
     }
-
+  
+    // If no errors, print the data and reset the fields
     if (!hasError) {
+      console.log('Full Name:', fullName);
+      console.log('Email:', email);
+      console.log('Password:', password);
+  
+      // Reset fields
+      setFullName('');
+      setEmail('');
+      setPassword('');
+  
+      // Navigate to another screen (optional)
       router.push('/joinoptions');
     }
   };
+  
 
   return (
     <View style={styles.container}>

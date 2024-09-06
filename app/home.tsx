@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { View, TextInput, TouchableOpacity, StyleSheet, Animated, Modal, Text, FlatList } from 'react-native';
-import { AntDesign } from '@expo/vector-icons';
+import { AntDesign, Entypo } from '@expo/vector-icons'; // Added Entypo for Hamburger icon
 import { Dimensions } from 'react-native';
+import { Link} from 'expo-router';
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -14,6 +15,9 @@ export default function QuestionScreen() {
   const [showError, setShowError] = useState(false);
   const [showQuestionError, setShowQuestionError] = useState(false);
   const [showSkillError, setShowSkillError] = useState(false);
+  const [menuVisible, setMenuVisible] = useState(false); // For the hamburger menu modal
+
+  
 
   const toggleSwitch = () => {
     setIsEnabled((previousState) => !previousState);
@@ -78,8 +82,33 @@ export default function QuestionScreen() {
     console.log("Calling action triggered...");
   };
 
+
   return (
     <View style={styles.container}>
+      {/* Hamburger Icon */}
+      <TouchableOpacity style={styles.hamburger} onPress={() => setMenuVisible(true)}>
+        <Entypo name="menu" size={30} color="black" />
+      </TouchableOpacity>
+
+      {/* Hamburger Menu Modal */}
+      <Modal
+        transparent={true}
+        visible={menuVisible}
+        onRequestClose={() => setMenuVisible(false)}
+        animationType="slide"
+      >
+        <TouchableOpacity style={styles.menuModalOverlay} onPress={() => setMenuVisible(false)}>
+          <View style={styles.menuModal}>
+            <TouchableOpacity style={styles.menuItem}>
+              <Text style={styles.menuText}><Link href='/joinoptions'>Edit Profile </Link></Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.menuItem}>
+              <Text style={styles.menuText}><Link href='/'>Log Out</Link></Text>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
       {/* Custom Toggle Button */}
       <TouchableOpacity onPress={toggleSwitch} style={styles.toggleContainer}>
         <Animated.View
@@ -170,6 +199,30 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     backgroundColor: '#FFFFFF',
+  },
+  hamburger: {
+    position: 'absolute',
+    top: 60,
+    left: 20,
+  },
+  menuModalOverlay: {
+    flex: 1,
+    justifyContent: 'flex-start',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  menuModal: {
+    backgroundColor: '#fff',
+    width: 150,
+    padding: 10,
+    borderRadius: 10,
+    marginTop: 100,
+    marginLeft: 20,
+  },
+  menuItem: {
+    paddingVertical: 10,
+  },
+  menuText: {
+    fontSize: 18,
   },
   toggleContainer: {
     position: 'absolute',

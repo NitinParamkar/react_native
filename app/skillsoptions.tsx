@@ -190,6 +190,8 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingVertical: 12,
     alignItems: 'center',
+    width: '60%',
+    marginLeft: '20%',
   },
   doneButtonText: {
     color: '#FFFFFF',
@@ -202,6 +204,8 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     alignItems: 'center',
     marginTop: 30,
+    width: '60%',
+    marginLeft: '20%',
   },
   nextButtonText: {
     color: '#FFFFFF',
