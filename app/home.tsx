@@ -9,8 +9,11 @@ export default function QuestionScreen() {
   const [isEnabled, setIsEnabled] = useState(false);
   const [animation] = useState(new Animated.Value(0));
   const [selectedSkill, setSelectedSkill] = useState('');
+  const [question, setQuestion] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
   const [showError, setShowError] = useState(false);
+  const [showQuestionError, setShowQuestionError] = useState(false);
+  const [showSkillError, setShowSkillError] = useState(false);
 
   const toggleSwitch = () => {
     setIsEnabled((previousState) => !previousState);
@@ -46,7 +49,33 @@ export default function QuestionScreen() {
 
   const selectSkill = (value) => {
     setSelectedSkill(value);
-    setShowError(false);
+    setShowSkillError(false);
+  };
+
+  const handleCallButtonPress = () => {
+    let hasError = false;
+
+    if (!question.trim()) {
+      setShowQuestionError(true);
+      hasError = true;
+    } else {
+      setShowQuestionError(false);
+    }
+
+    if (!selectedSkill) {
+      setShowSkillError(true);
+      hasError = true;
+    } else {
+      setShowSkillError(false);
+    }
+
+    if (hasError) {
+      // If there are errors, do not proceed further
+      return;
+    }
+
+    // Proceed with the call action if no errors
+    console.log("Calling action triggered...");
   };
 
   return (
@@ -75,17 +104,20 @@ export default function QuestionScreen() {
 
       {/* Question Input */}
       <TextInput
-        style={[styles.input, { fontSize: 20 }]} 
+        style={[styles.input, { fontSize: 20 }, showQuestionError && styles.errorInput]}
         placeholder="Type your question here"
         placeholderTextColor="#D3D3D3"
+        value={question}
+        onChangeText={setQuestion}
         multiline={true}
         textAlignVertical="top"
         scrollEnabled={true}
       />
+      {showQuestionError && <Text style={styles.errorText}>Please type your question here</Text>}
 
       {/* Skill Dropdown */}
       <TouchableOpacity
-        style={[styles.dropdownButton, showError && { borderColor: 'red' }]}
+        style={[styles.dropdownButton, showSkillError && { borderColor: 'red' }]}
         onPress={() => setModalVisible(true)}
       >
         <Text style={[styles.dropdownText, { color: selectedSkill ? 'black' : '#D3D3D3' }]}>
@@ -93,9 +125,7 @@ export default function QuestionScreen() {
         </Text>
         <AntDesign name="down" size={20} color="#D3D3D3" />
       </TouchableOpacity>
-
-      {/* Error message */}
-      {showError && <Text style={styles.errorText}>Please select your skill</Text>}
+      {showSkillError && <Text style={styles.errorText}>Please select relevant skill</Text>}
 
       {/* Modal */}
       <Modal
@@ -128,7 +158,7 @@ export default function QuestionScreen() {
       </Modal>
 
       {/* Call Icon */}
-      <TouchableOpacity style={styles.callButton}>
+      <TouchableOpacity style={styles.callButton} onPress={handleCallButtonPress}>
         <AntDesign name="phone" size={30} color="#fff" />
       </TouchableOpacity>
     </View>
@@ -201,6 +231,7 @@ const styles = StyleSheet.create({
     color: 'red',
     fontSize: 14,
     textAlign: 'center',
+    marginBottom: 10,
   },
   modalContainer: {
     flex: 1,
@@ -251,5 +282,8 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
+  },
+  errorInput: {
+    borderColor: 'red',
   },
 });
