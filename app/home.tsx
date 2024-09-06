@@ -1,19 +1,19 @@
 import React, { useState } from 'react';
-import { View, TextInput, TouchableOpacity, StyleSheet, Animated, Modal, Text, FlatList, CheckBox } from 'react-native';
+import { View, TextInput, TouchableOpacity, StyleSheet, Animated, Modal, Text, FlatList } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import { Dimensions } from 'react-native';
+
 const windowWidth = Dimensions.get('window').width;
 
 export default function QuestionScreen() {
   const [isEnabled, setIsEnabled] = useState(false);
-  const [animation] = useState(new Animated.Value(0)); // Animation for the toggle
-  const [selectedSkill, setSelectedSkill] = useState(''); // Only one selected skill
-  const [modalVisible, setModalVisible] = useState(false); // Modal visibility state
-  const [showError, setShowError] = useState(false); // Error state for dropdown
+  const [animation] = useState(new Animated.Value(0));
+  const [selectedSkill, setSelectedSkill] = useState('');
+  const [modalVisible, setModalVisible] = useState(false);
+  const [showError, setShowError] = useState(false);
 
   const toggleSwitch = () => {
     setIsEnabled((previousState) => !previousState);
-    // Animate the toggle button
     Animated.timing(animation, {
       toValue: isEnabled ? 0 : 1,
       duration: 300,
@@ -23,35 +23,30 @@ export default function QuestionScreen() {
 
   const toggleInterpolation = animation.interpolate({
     inputRange: [0, 1],
-    outputRange: ['3%', '63%'], // Adjust this range for smooth thumb movement
+    outputRange: ['3%', '63%'],
   });
 
   const thumbColorInterpolation = animation.interpolate({
     inputRange: [0, 1],
-    outputRange: ['#f4f3f4', '#ffffff'], // White when toggled on
+    outputRange: ['#f4f3f4', '#ffffff'],
   });
 
   const backgroundColorInterpolation = animation.interpolate({
     inputRange: [0, 1],
-    outputRange: ['#D3D3D3', '#34C759'], // Green when toggled on
+    outputRange: ['#D3D3D3', '#34C759'],
   });
 
   const options = [
     { label: 'Figma', value: 'Figma' },
     { label: 'App Development', value: 'App Development' },
-    { label: 'Power Bi', value: 'Power Bi' },
+    { label: 'Power BI', value: 'Power BI' },
     { label: 'Photoshop', value: 'Photoshop' },
     { label: 'Web Development', value: 'Web Development' },
   ];
 
-  // Only one skill can be selected at a time
   const selectSkill = (value) => {
-    if (selectedSkill === value) {
-      setSelectedSkill(''); // Deselect if the same skill is tapped again
-    } else {
-      setSelectedSkill(value); // Select the new skill
-    }
-    setShowError(false); // Remove error when a skill is selected
+    setSelectedSkill(value);
+    setShowError(false);
   };
 
   return (
@@ -62,7 +57,7 @@ export default function QuestionScreen() {
           style={[
             styles.toggleBackground,
             {
-              backgroundColor: backgroundColorInterpolation, // Change background color based on toggle state
+              backgroundColor: backgroundColorInterpolation,
             },
           ]}
         >
@@ -70,8 +65,8 @@ export default function QuestionScreen() {
             style={[
               styles.toggleThumb,
               {
-                left: toggleInterpolation, // Move thumb left or right
-                backgroundColor: thumbColorInterpolation, // Change color of thumb
+                left: toggleInterpolation,
+                backgroundColor: thumbColorInterpolation,
               },
             ]}
           />
@@ -83,18 +78,18 @@ export default function QuestionScreen() {
         style={[styles.input, { fontSize: 20 }]} 
         placeholder="Type your question here"
         placeholderTextColor="#D3D3D3"
-        multiline={true}         // Allows multiline input
-        textAlignVertical="top"  // Starts text from the top-left corner
-        scrollEnabled={true}     // Enables scrolling if text exceeds box size
+        multiline={true}
+        textAlignVertical="top"
+        scrollEnabled={true}
       />
 
       {/* Skill Dropdown */}
       <TouchableOpacity
-        style={[styles.dropdownButton, showError && { borderColor: 'red' }]} // Highlight border if error
+        style={[styles.dropdownButton, showError && { borderColor: 'red' }]}
         onPress={() => setModalVisible(true)}
       >
         <Text style={[styles.dropdownText, { color: selectedSkill ? 'black' : '#D3D3D3' }]}>
-          {selectedSkill ? selectedSkill : 'Choose your skill here'}
+          {selectedSkill || 'Choose your skill here'}
         </Text>
         <AntDesign name="down" size={20} color="#D3D3D3" />
       </TouchableOpacity>
@@ -116,19 +111,18 @@ export default function QuestionScreen() {
               renderItem={({ item }) => (
                 <TouchableOpacity
                   style={styles.optionContainer}
-                  onPress={() => selectSkill(item.value)}
+                  onPress={() => {
+                    selectSkill(item.value);
+                    setModalVisible(false);
+                  }}
                 >
-                  <CheckBox
-                    value={selectedSkill === item.value}
-                    onValueChange={() => selectSkill(item.value)}
-                  />
+                  <View style={styles.radioButton}>
+                    {selectedSkill === item.value && <View style={styles.radioButtonInner} />}
+                  </View>
                   <Text style={styles.optionLabel}>{item.label}</Text>
                 </TouchableOpacity>
               )}
             />
-            <TouchableOpacity style={styles.doneButton} onPress={() => setModalVisible(false)}>
-              <Text style={styles.doneButtonText}>Done</Text>
-            </TouchableOpacity>
           </View>
         </View>
       </Modal>
@@ -224,28 +218,31 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 10,
   },
+  radioButton: {
+    height: 24,
+    width: 24,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: '#000',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 10,
+  },
+  radioButtonInner: {
+    height: 12,
+    width: 12,
+    borderRadius: 6,
+    backgroundColor: '#000',
+  },
   optionLabel: {
     fontSize: 16,
-    marginLeft: 10,
-  },
-  doneButton: {
-    marginTop: 20,
-    backgroundColor: '#007BFF',
-    borderRadius: 8,
-    paddingVertical: 12,
-    alignItems: 'center',
-  },
-  doneButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: 'bold',
   },
   callButton: {
     alignItems: 'center',
     justifyContent: 'center',
     position: 'absolute',
     bottom: 50,
-    left: '45%',
+    left: '42%',
     backgroundColor: '#32CD32',
     padding: 20,
     borderRadius: 50,

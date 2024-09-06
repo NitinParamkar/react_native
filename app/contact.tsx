@@ -16,7 +16,6 @@ export default function LoginScreen() {
   };
 
   const validateCountryCode = (code) => {
-    // Basic validation for country code starting with + and containing only numbers after +
     const countryCodeRegex = /^\+\d+$/;
     return countryCodeRegex.test(code);
   };
@@ -42,11 +41,11 @@ export default function LoginScreen() {
 
     if (isValid) {
       console.log('Country Code:', countryCode, 'Mobile Number:', mobileNumber);
-      // Proceed to the next step
-    }
-    router.push({
+      // Only navigate if the input is valid
+      router.push({
         pathname: '/home',
       });
+    }
   };
 
   return (
