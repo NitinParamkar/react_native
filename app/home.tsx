@@ -119,7 +119,7 @@ export default function QuestionScreen() {
         transparent={true}
         visible={menuVisible}
         onRequestClose={() => setMenuVisible(false)}
-        animationType="slide"
+        animationType="none"
       >
         <TouchableOpacity style={styles.menuModalOverlay} onPress={() => setMenuVisible(false)}>
           <View style={styles.menuModal}>
