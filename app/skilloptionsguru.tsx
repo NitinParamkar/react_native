@@ -1,53 +1,73 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, FlatList, Modal } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 
-export default function JoinAsLearnerAndGuru() {
+export default function Selectskills() {
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedRoles, setSelectedRoles] = useState([]);
+  const [selectedSkills, setSelectedSkills] = useState([]);
   const [showError, setShowError] = useState(false);
+  
   const router = useRouter();
+  const local = useLocalSearchParams();
 
   const options = [
-    { label: 'Learner', value: 'Learner' },
-    { label: 'Guru', value: 'Guru' },
+    { label: 'Figma', value: 'Figma' },
+    { label: 'App Development', value: 'App Development' },
+    { label: 'Power BI', value: 'Power BI' },
+    { label: 'Photoshop', value: 'Photoshop' },
+    { label: 'Web Development', value: 'Web Development' },
+    { label: 'UI/UX Design', value: 'UI/UX Design' },
+    { label: 'Data Analysis', value: 'Data Analysis' },
+    { label: 'Graphic Design', value: 'Graphic Design' },
+    { label: 'Content Creation', value: 'Content Creation' },
+    { label: 'Cloud Computing', value: 'Cloud Computing' },
+    { label: 'SEO Optimization', value: 'SEO Optimization' },
+    { label: 'Machine Learning', value: 'Machine Learning' },
+    { label: 'Digital Marketing', value: 'Digital Marketing' },
+    { label: 'Blockchain', value: 'Blockchain' },
+    { label: 'Artificial Intelligence', value: 'Artificial Intelligence' },
+    { label: 'Game Development', value: 'Game Development' },
+    { label: 'Cybersecurity', value: 'Cybersecurity' },
+    { label: 'DevOps', value: 'DevOps' },
+    { label: '3D Modeling', value: '3D Modeling' },
+    { label: 'Video Editing', value: 'Video Editing' },
+    { label: 'Database Management', value: 'Database Management' },
+    { label: 'Animation', value: 'Animation' },
+    { label: 'Cloud Architecture', value: 'Cloud Architecture' },
+    { label: 'Product Management', value: 'Product Management' },
+    { label: 'Salesforce', value: 'Salesforce' },
+    { label: 'React Native', value: 'React Native' },
+    { label: 'Next.js', value: 'Next.js' },
+    { label: 'Backend Development', value: 'Backend Development' },
+    { label: 'Others', value: 'Others' },
   ];
 
-  const toggleRole = (value) => {
-    setSelectedRoles(prevRoles => {
-      if (prevRoles.includes(value)) {
-        return prevRoles.filter(role => role !== value);
+  const toggleSkill = (value) => {
+    setSelectedSkills(prevSkills => {
+      if (prevSkills.includes(value)) {
+        return prevSkills.filter(skill => skill !== value);
       } else {
-        return [...prevRoles, value];
+        return [...prevSkills, value];
       }
     });
     setShowError(false);
   };
 
   const handleNext = () => {
-    if (selectedRoles.length === 0) {
+    if (selectedSkills.length === 0) {
       setShowError(true);
       return;
     }
-
-    const joinOption = selectedRoles.includes('Guru') && selectedRoles.includes('Learner')
-      ? '3'
-      : selectedRoles.includes('Guru')
-      ? '2'
-      : '1';
-
-
-      if(joinOption === '1'){ 
-        router.push({
-          pathname: '/skilloptionslearner',
-        });
-      }else{
-        router.push({
-          pathname: '/skilloptionsguru',
-          params: { joinOption },
-        });
-      }
+    if(local.joinOption === '2'){ 
+    router.push({
+      pathname: '/contact',
+    });
+  }else{
+    router.push({
+      pathname: '/skilloptionslearner',
+    });
+  }
   };
 
   return (
@@ -56,20 +76,20 @@ export default function JoinAsLearnerAndGuru() {
         <AntDesign name="arrowleft" size={24} color="black" />
       </TouchableOpacity>
 
-      <Text style={styles.headerText}>Join as Learner & Guru</Text>
-      <Text style={styles.subText}>Learn and share.</Text>
+      <Text style={styles.headerText}>Share your skills with us</Text>
+      <Text style={styles.subText}> 'Guide and Inspire'</Text>
 
       <TouchableOpacity
         style={[styles.dropdownButton, showError && styles.errorBorder]}
         onPress={() => setModalVisible(true)}
       >
-        <Text style={[styles.dropdownText, { color: selectedRoles.length === 0 ? '#D3D3D3' : 'black' }]}>
-          {selectedRoles.length > 0 ? selectedRoles.join(', ') : 'Choose your role here'}
+        <Text style={[styles.dropdownText, { color: selectedSkills.length === 0 ? '#D3D3D3' : 'black' }]}>
+          {selectedSkills.length > 0 ? selectedSkills.join(', ') : 'Choose your skills here'}
         </Text>
         <AntDesign name="down" size={20} color="#D3D3D3" />
       </TouchableOpacity>
 
-      {showError && <Text style={styles.errorText}>Please select your role</Text>}
+      {showError && <Text style={styles.errorText}>Please select your skills</Text>}
 
       <Modal
         transparent={true}
@@ -85,10 +105,10 @@ export default function JoinAsLearnerAndGuru() {
               renderItem={({ item }) => (
                 <TouchableOpacity
                   style={styles.optionContainer}
-                  onPress={() => toggleRole(item.value)}
+                  onPress={() => toggleSkill(item.value)}
                 >
-                  <View style={[styles.checkbox, selectedRoles.includes(item.value) && styles.checkedBox]}>
-                    {selectedRoles.includes(item.value) && (
+                  <View style={[styles.checkbox, selectedSkills.includes(item.value) && styles.checkedBox]}>
+                    {selectedSkills.includes(item.value) && (
                       <AntDesign name="check" size={16} color="#FFFFFF" />
                     )}
                   </View>
@@ -201,6 +221,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '60%',
     marginLeft: '20%',
+    marginBottom: 80,
   },
   doneButtonText: {
     color: '#FFFFFF',

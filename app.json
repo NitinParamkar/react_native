@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "login_signup",
-    "slug": "login_signup",
+    "name": "Skill Guru",
+    "slug": "skill-guru",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -13,7 +13,8 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.nitinparamkar.skillguru"
     },
     "android": {
       "adaptiveIcon": {
@@ -38,7 +39,7 @@
         "origin": false
       },
       "eas": {
-        "projectId": "152391f6-a50d-4968-a8f1-513942ad45c7"
+        "projectId": "c33b1130-85c5-4b6a-a9c5-9cb863195be0"
       }
     }
   }

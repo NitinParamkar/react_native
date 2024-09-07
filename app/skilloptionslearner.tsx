@@ -59,7 +59,7 @@ export default function Selectskills() {
       setShowError(true);
       return;
     }
-
+     
     router.push({
       pathname: '/contact',
     });
@@ -71,8 +71,8 @@ export default function Selectskills() {
         <AntDesign name="arrowleft" size={24} color="black" />
       </TouchableOpacity>
 
-      <Text style={styles.headerText}>Unlock your potential</Text>
-      <Text style={styles.subText}>{local.subText}</Text>
+      <Text style={styles.headerText}>Empower your career: Select your target skills</Text>
+      <Text style={styles.subText}> 'Discover, ask, and grow' </Text>
 
       <TouchableOpacity
         style={[styles.dropdownButton, showError && styles.errorBorder]}
