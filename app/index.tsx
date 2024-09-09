@@ -27,15 +27,29 @@ export default function SignupScreen() {
     }
   
     // Validate Email
+    const validDomains = [
+      '@gmail.com',
+      '@outlook.com',
+      '@yahoo.com',
+      '@hotmail.com',
+      '@icloud.com',
+      '@aol.com',
+      '@protonmail.com',
+      '@zoho.com',
+      '@mail.com',
+      '@gmx.com'
+    ];
+    
     if (!email) {
       setEmailError('This field is required');
       hasError = true;
-    } else if (!email.endsWith('@gmail.com')) {
+    } else if (!validDomains.some(domain => email.endsWith(domain))) {
       setEmailError('Enter valid email');
       hasError = true;
     } else {
       setEmailError(null);
     }
+    
   
     // Validate Password
     if (!password) {
