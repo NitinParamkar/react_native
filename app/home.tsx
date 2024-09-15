@@ -1,3 +1,4 @@
+//home.tsx
 import React, { useState } from 'react';
 import { View, TextInput, TouchableOpacity, StyleSheet, Animated, Modal, Text, FlatList } from 'react-native';
 import { AntDesign, Entypo } from '@expo/vector-icons'; // Added Entypo for Hamburger icon

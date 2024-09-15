@@ -1,5 +1,6 @@
+//index.tsx
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Alert } from 'react-native';
 import { AntDesign, FontAwesome5 } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 
@@ -8,6 +9,7 @@ export default function SignupScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [hidePassword, setHidePassword] = useState(true);
+  const [error, setError] = useState('');
 
   const [fullNameError, setFullNameError] = useState(false);
   const [emailError, setEmailError] = useState(null);
@@ -15,7 +17,7 @@ export default function SignupScreen() {
 
   const router = useRouter();
 
-  const handleSignUp = () => {
+  const handleSignUp = async() => {
     let hasError = false;
     
     // Validate Full Name
@@ -61,17 +63,32 @@ export default function SignupScreen() {
   
     // If no errors, print the data and reset the fields
     if (!hasError) {
-      console.log('Full Name:', fullName);
-      console.log('Email:', email);
-      console.log('Password:', password);
+      try {
+        const response = await fetch('http://localhost:5000/api/users/signup', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ fullName, email, password }),
+        });
   
-      // Reset fields
-      setFullName('');
-      setEmail('');
-      setPassword('');
+        const data = await response.json();
+        console.log('Response from server:', data);
   
-      // Navigate to another screen (optional)
-      router.push('/joinoptions');
+        if (response.ok) {
+          console.log('Signup successful. Attempting to navigate to joinoptions screen');
+          router.push({
+            pathname: '/joinoptions',
+            params: { userId: data.userId }
+          });
+        } else {
+          console.error('Signup failed:', data.message);
+          Alert.alert('Error', data.message || 'An error occurred during signup');
+        }
+      } catch (error) {
+        console.error('Error in network request:', error);
+        Alert.alert('Error', 'Network error. Please try again.');
+      }
     }
   };
   

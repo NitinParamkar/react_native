@@ -1,13 +1,17 @@
+//joinoptions.tsx
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, FlatList, Modal } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, FlatList, Modal, Alert } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 
 export default function JoinAsLearnerAndGuru() {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedRoles, setSelectedRoles] = useState([]);
   const [showError, setShowError] = useState(false);
   const router = useRouter();
+  const { userId } = useLocalSearchParams();
+
+  console.log('JoinAsLearnerAndGuru rendered. Received userId:', userId);
 
   const options = [
     { label: 'Learner', value: 'Learner' },
@@ -25,29 +29,61 @@ export default function JoinAsLearnerAndGuru() {
     setShowError(false);
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
+    console.log('handleNext called. Selected roles:', selectedRoles);
+
     if (selectedRoles.length === 0) {
       setShowError(true);
       return;
     }
 
-    const joinOption = selectedRoles.includes('Guru') && selectedRoles.includes('Learner')
-      ? '3'
-      : selectedRoles.includes('Guru')
-      ? '2'
-      : '1';
+    let joinOption;
+    if (selectedRoles.includes('Guru') && selectedRoles.includes('Learner')) {
+      joinOption = 'Both';
+    } else if (selectedRoles.includes('Guru')) {
+      joinOption = 'Guru';
+    } else {
+      joinOption = 'Learner';
+    }
 
+    console.log('Determined joinOption:', joinOption);
 
-      if(joinOption === '1'){ 
-        router.push({
-          pathname: '/skilloptionslearner',
-        });
-      }else{
-        router.push({
-          pathname: '/skilloptionsguru',
-          params: { joinOption },
-        });
+    try {
+      // Update the user's joinOption in the database
+      const response = await fetch('http://localhost:5000/api/users/join-option', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId, joinOption }),
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('User joinOption updated successfully:', data);
+        
+        // Navigate to the appropriate page
+        if (joinOption === 'Learner') { 
+          console.log('Navigating to skilloptionslearner');
+          router.push({
+            pathname: '/skilloptionslearner',
+            params: { userId, joinOption }
+          });
+        } else {
+          console.log('Navigating to skilloptionsguru');
+          router.push({
+            pathname: '/skilloptionsguru',
+            params: { userId, joinOption }
+          });
+        }
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to update user joinOption');
       }
+    } catch (error) {
+      console.error('Error:', error);
+      Alert.alert('Error', 'Failed to update user information. Please try again.');
+    }
   };
 
   return (
