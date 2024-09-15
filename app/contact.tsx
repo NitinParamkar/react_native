@@ -1,27 +1,28 @@
 //contact.tsx
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 
-export default function LoginScreen() {
+export default function ContactScreen() {
   const [countryCode, setCountryCode] = useState('');
-  const [mobileNumber, setMobileNumber] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [countryCodeError, setCountryCodeError] = useState('');
-  const [mobileNumberError, setMobileNumberError] = useState('');
+  const [phoneNumberError, setPhoneNumberError] = useState('');
   const router = useRouter();
+  const { userId } = useLocalSearchParams();
 
-  const validatePhoneNumber = (phone) => {
+  const validatePhoneNumber = (phone: string) => {
     const phoneRegex = /^[0-9]{10}$/;
     return phoneRegex.test(phone);
   };
 
-  const validateCountryCode = (code) => {
+  const validateCountryCode = (code: string) => {
     const countryCodeRegex = /^\+\d+$/;
     return countryCodeRegex.test(code);
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     let isValid = true;
 
     // Validate Country Code
@@ -32,38 +33,54 @@ export default function LoginScreen() {
       setCountryCodeError('');
     }
 
-    // Validate Mobile Number
-    if (!validatePhoneNumber(mobileNumber)) {
-      setMobileNumberError('Please enter a valid 10-digit phone number');
+    // Validate Phone Number
+    if (!validatePhoneNumber(phoneNumber)) {
+      setPhoneNumberError('Please enter a valid 10-digit phone number');
       isValid = false;
     } else {
-      setMobileNumberError('');
+      setPhoneNumberError('');
     }
 
     if (isValid) {
-      console.log('Country Code:', countryCode, 'Mobile Number:', mobileNumber);
-      // Only navigate if the input is valid
-      router.push({
-        pathname: '/home',
-      });
+      try {
+        const response = await fetch('http://localhost:5000/api/users/contact', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ userId, countryCode, phoneNumber }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          console.log('User contact details updated successfully:', data);
+          router.push({
+            pathname: '/home',
+            params: { userId }
+          });
+        } else {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Failed to update contact details');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        Alert.alert('Error', 'Failed to update contact information. Please try again.');
+      }
     }
   };
 
   return (
     <View style={styles.container}>
-      {/* Back Button */}
       <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
         <AntDesign name="arrowleft" size={24} color="black" />
       </TouchableOpacity>
 
-      {/* Header */}
       <Text style={styles.headerText}>Welcome!</Text>
       <Text style={styles.subText}>Let's keep you connected</Text>
 
-      {/* Country Code Input */}
       <TextInput
         style={[styles.input, countryCodeError ? { borderColor: 'red' } : {}]}
-        placeholder="country code ex:+91"
+        placeholder="Country code (e.g., +91)"
         placeholderTextColor="#D3D3D3"
         value={countryCode}
         onChangeText={(text) => setCountryCode(text)}
@@ -71,18 +88,16 @@ export default function LoginScreen() {
       />
       {countryCodeError ? <Text style={styles.errorText}>{countryCodeError}</Text> : null}
 
-      {/* Mobile Number Input */}
       <TextInput
-        style={[styles.input, mobileNumberError ? { borderColor: 'red' } : {}]}
-        placeholder="Mobile number"
+        style={[styles.input, phoneNumberError ? { borderColor: 'red' } : {}]}
+        placeholder="Phone number"
         placeholderTextColor="#D3D3D3"
-        value={mobileNumber}
-        onChangeText={(text) => setMobileNumber(text)}
+        value={phoneNumber}
+        onChangeText={(text) => setPhoneNumber(text)}
         keyboardType="phone-pad"
       />
-      {mobileNumberError ? <Text style={styles.errorText}>{mobileNumberError}</Text> : null}
+      {phoneNumberError ? <Text style={styles.errorText}>{phoneNumberError}</Text> : null}
 
-      {/* Next Button */}
       <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
         <Text style={styles.nextButtonText}>
           Next <AntDesign name="arrowright" size={16} color="#FFFFFF" />

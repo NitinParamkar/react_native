@@ -1,9 +1,9 @@
 //home.tsx
 import React, { useState } from 'react';
 import { View, TextInput, TouchableOpacity, StyleSheet, Animated, Modal, Text, FlatList } from 'react-native';
-import { AntDesign, Entypo } from '@expo/vector-icons'; // Added Entypo for Hamburger icon
+import { AntDesign, Entypo } from '@expo/vector-icons';
 import { Dimensions } from 'react-native';
-import { Link} from 'expo-router';
+import { Link, useRouter, useLocalSearchParams } from 'expo-router';
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -16,7 +16,10 @@ export default function QuestionScreen() {
   const [showError, setShowError] = useState(false);
   const [showQuestionError, setShowQuestionError] = useState(false);
   const [showSkillError, setShowSkillError] = useState(false);
-  const [menuVisible, setMenuVisible] = useState(false); // For the hamburger menu modal
+  const [menuVisible, setMenuVisible] = useState(false);
+
+  const router = useRouter();
+  const { userId } = useLocalSearchParams();
 
   
 
@@ -124,11 +127,26 @@ export default function QuestionScreen() {
       >
         <TouchableOpacity style={styles.menuModalOverlay} onPress={() => setMenuVisible(false)}>
           <View style={styles.menuModal}>
-            <TouchableOpacity style={styles.menuItem}>
-              <Text style={styles.menuText}><Link href='/joinoptions'>Edit Profile </Link></Text>
+            <TouchableOpacity 
+              style={styles.menuItem}
+              onPress={() => {
+                setMenuVisible(false);
+                router.push({
+                  pathname: '/joinoptions',
+                  params: { userId }
+                });
+              }}
+            >
+              <Text style={styles.menuText}>Edit Profile</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.menuItem}>
-              <Text style={styles.menuText}><Link href='/'>Log Out</Link></Text>
+            <TouchableOpacity 
+              style={styles.menuItem}
+              onPress={() => {
+                setMenuVisible(false);
+                router.push('/');
+              }}
+            >
+              <Text style={styles.menuText}>Log Out</Text>
             </TouchableOpacity>
           </View>
         </TouchableOpacity>

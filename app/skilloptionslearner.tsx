@@ -1,6 +1,6 @@
 //skilloptionslearner.tsx
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, FlatList, Modal } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, FlatList, Modal, Alert } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 
@@ -10,7 +10,7 @@ export default function Selectskills() {
   const [showError, setShowError] = useState(false);
   
   const router = useRouter();
-  const local = useLocalSearchParams();
+  const { userId, joinOption } = useLocalSearchParams();
 
   const options = [
     { label: 'Figma', value: 'Figma' },
@@ -55,15 +55,43 @@ export default function Selectskills() {
     setShowError(false);
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (selectedSkills.length === 0) {
       setShowError(true);
       return;
     }
-     
-    router.push({
-      pathname: '/contact',
-    });
+
+    try {
+      // Update the user's learnerSkills in the database
+      const response = await fetch('http://localhost:5000/api/users/skills', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          userId, 
+          skills: selectedSkills,
+          skillType: 'learner'
+        }),
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('User learnerSkills updated successfully:', data);
+        
+        // Navigate to the contact page
+        router.push({
+          pathname: '/contact',
+          params: { userId, joinOption }
+        });
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to update user learnerSkills');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      Alert.alert('Error', 'Failed to update user information. Please try again.');
+    }
   };
 
   return (
@@ -73,7 +101,7 @@ export default function Selectskills() {
       </TouchableOpacity>
 
       <Text style={styles.headerText}>Empower your career: Select your target skills</Text>
-      <Text style={styles.subText}> 'Discover, ask, and grow' </Text>
+      <Text style={styles.subText}>'Discover, ask, and grow'</Text>
 
       <TouchableOpacity
         style={[styles.dropdownButton, showError && styles.errorBorder]}

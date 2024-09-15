@@ -1,6 +1,6 @@
 //skilloptionsguru.tsx
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, FlatList, Modal } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, FlatList, Modal, Alert } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 
@@ -10,7 +10,7 @@ export default function Selectskills() {
   const [showError, setShowError] = useState(false);
   
   const router = useRouter();
-  const local = useLocalSearchParams();
+  const { userId, joinOption } = useLocalSearchParams();
 
   const options = [
     { label: 'Figma', value: 'Figma' },
@@ -55,20 +55,50 @@ export default function Selectskills() {
     setShowError(false);
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (selectedSkills.length === 0) {
       setShowError(true);
       return;
     }
-    if(local.joinOption === '2'){ 
-    router.push({
-      pathname: '/contact',
-    });
-  }else{
-    router.push({
-      pathname: '/skilloptionslearner',
-    });
-  }
+
+    try {
+      // Update the user's guruSkills in the database
+      const response = await fetch('http://localhost:5000/api/users/skills', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          userId, 
+          skills: selectedSkills,
+          skillType: 'guru'
+        }),
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('User guruSkills updated successfully:', data);
+        
+        // Navigate to the appropriate page based on joinOption
+        if (joinOption === 'Both') {
+          router.push({
+            pathname: '/skilloptionslearner',
+            params: { userId, joinOption }
+          });
+        } else {
+          router.push({
+            pathname: '/contact',
+            params: { userId, joinOption }
+          });
+        }
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to update user guruSkills');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      Alert.alert('Error', 'Failed to update user information. Please try again.');
+    }
   };
 
   return (
@@ -78,7 +108,7 @@ export default function Selectskills() {
       </TouchableOpacity>
 
       <Text style={styles.headerText}>Share your skills with us</Text>
-      <Text style={styles.subText}> 'Guide and Inspire'</Text>
+      <Text style={styles.subText}>'Guide and Inspire'</Text>
 
       <TouchableOpacity
         style={[styles.dropdownButton, showError && styles.errorBorder]}
