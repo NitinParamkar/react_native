@@ -63,3 +63,22 @@ exports.updateContact = async (req, res) => {
     res.status(500).json({ message: 'Error updating contact details', error: error.message });
   }
 };
+
+exports.edit = async (req, res) => {
+  try {
+    const { userId } = req.body;
+    const defaults = {
+      joinOption: 'Learner',
+      learnerSkills: [],
+      guruSkills: []
+    };
+    const user = await User.findByIdAndUpdate(userId, { 
+      joinOption: defaults.joinOption,
+      learnerSkills: defaults.learnerSkills,
+      guruSkills: defaults.guruSkills
+    }, { new: true });
+    res.json({ message: 'edited successfully', user });
+  } catch (error) {
+    res.status(500).json({ message: 'Error editing details', error: error.message });
+  }
+};

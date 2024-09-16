@@ -1,6 +1,6 @@
 //home.tsx
 import React, { useState } from 'react';
-import { View, TextInput, TouchableOpacity, StyleSheet, Animated, Modal, Text, FlatList } from 'react-native';
+import { View, TextInput, TouchableOpacity, StyleSheet, Animated, Modal, Text, FlatList, Alert } from 'react-native';
 import { AntDesign, Entypo } from '@expo/vector-icons';
 import { Dimensions } from 'react-native';
 import { Link, useRouter, useLocalSearchParams } from 'expo-router';
@@ -20,9 +20,7 @@ export default function QuestionScreen() {
 
   const router = useRouter();
   const { userId } = useLocalSearchParams();
-
   
-
   const toggleSwitch = () => {
     setIsEnabled((previousState) => !previousState);
     Animated.timing(animation, {
@@ -111,6 +109,41 @@ export default function QuestionScreen() {
   };
 
 
+const handleEdit = async() => {
+  try {
+    // Update the user's joinOption in the database
+    const response = await fetch('http://localhost:5000/api/users/edit', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ userId}),
+    });
+    
+    if (response.ok) {
+      const data = await response.json();
+      console.log('User joinOption updated successfully:', data);
+      
+      // Navigate to the appropriate page
+      
+      setMenuVisible(false);
+      router.push({
+        pathname: '/joinoptions',
+        params: { userId }
+      });
+    
+    } else {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to edit user joinOption');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    Alert.alert('Error', 'Failed to edit user information. Please try again.');
+  }
+};
+
+
+
   return (
     <View style={styles.container}>
       {/* Hamburger Icon */}
@@ -129,13 +162,7 @@ export default function QuestionScreen() {
           <View style={styles.menuModal}>
             <TouchableOpacity 
               style={styles.menuItem}
-              onPress={() => {
-                setMenuVisible(false);
-                router.push({
-                  pathname: '/joinoptions',
-                  params: { userId }
-                });
-              }}
+              onPress={handleEdit}
             >
               <Text style={styles.menuText}>Edit Profile</Text>
             </TouchableOpacity>
