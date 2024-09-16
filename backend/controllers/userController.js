@@ -82,3 +82,36 @@ exports.edit = async (req, res) => {
     res.status(500).json({ message: 'Error editing details', error: error.message });
   }
 };
+
+exports.updateToggleStatus = async (req, res) => {
+  try {
+    const { userId, toggleStatus } = req.body;
+    const user = await User.findByIdAndUpdate(userId, { toggleStatus }, { new: true });
+    res.json({ message: 'Toggle status updated successfully', toggleStatus: user.toggleStatus });
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating toggle status', error: error.message });
+  }
+};
+
+exports.saveQuestion = async (req, res) => {
+  try {
+    const { userId, question, questionType } = req.body;
+    const user = await User.findByIdAndUpdate(userId, { question, questionType }, { new: true });
+    res.json({ message: 'Question saved successfully', user });
+  } catch (error) {
+    res.status(500).json({ message: 'Error saving question', error: error.message });
+  }
+};
+
+exports.getUserData = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.json({ toggleStatus: user.toggleStatus, question: user.question, questionType: user.questionType });
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching user data', error: error.message });
+  }
+};

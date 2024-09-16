@@ -1,5 +1,5 @@
 //home.tsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, TextInput, TouchableOpacity, StyleSheet, Animated, Modal, Text, FlatList, Alert } from 'react-native';
 import { AntDesign, Entypo } from '@expo/vector-icons';
 import { Dimensions } from 'react-native';
@@ -13,7 +13,6 @@ export default function QuestionScreen() {
   const [selectedSkill, setSelectedSkill] = useState('');
   const [question, setQuestion] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
-  const [showError, setShowError] = useState(false);
   const [showQuestionError, setShowQuestionError] = useState(false);
   const [showSkillError, setShowSkillError] = useState(false);
   const [menuVisible, setMenuVisible] = useState(false);
@@ -21,13 +20,57 @@ export default function QuestionScreen() {
   const router = useRouter();
   const { userId } = useLocalSearchParams();
   
-  const toggleSwitch = () => {
-    setIsEnabled((previousState) => !previousState);
+  useEffect(() => {
+    fetchUserData();
+  }, [userId]);
+
+  const fetchUserData = async () => {
+    if (!userId) return; // Add this check to prevent unnecessary API calls
+    try {
+      const response = await fetch(`http://localhost:5000/api/users/user-data/${userId}`);
+      if (response.ok) {
+        const data = await response.json();
+        setIsEnabled(data.toggleStatus);
+        setQuestion(data.question || '');
+        setSelectedSkill(data.questionType || '');
+        // Set the initial animation value based on the toggle status
+        Animated.timing(animation, {
+          toValue: data.toggleStatus ? 1 : 0,
+          duration: 0,
+          useNativeDriver: false,
+        }).start();
+      } else {
+        console.error('Failed to fetch user data');
+      }
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+    }
+  };
+
+  const toggleSwitch = async () => {
+    const newStatus = !isEnabled;
+    setIsEnabled(newStatus);
     Animated.timing(animation, {
-      toValue: isEnabled ? 0 : 1,
+      toValue: newStatus ? 1 : 0,
       duration: 300,
       useNativeDriver: false,
     }).start();
+
+    try {
+      const response = await fetch('http://localhost:5000/api/users/toggle-status', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId, toggleStatus: newStatus }),
+      });
+      if (!response.ok) {
+        throw new Error('Failed to update toggle status');
+      }
+    } catch (error) {
+      console.error('Error updating toggle status:', error);
+      Alert.alert('Error', 'Failed to update toggle status. Please try again.');
+    }
   };
 
   const toggleInterpolation = animation.interpolate({
@@ -82,7 +125,7 @@ export default function QuestionScreen() {
     setShowSkillError(false);
   };
 
-  const handleCallButtonPress = () => {
+  const handleCallButtonPress = async () => {
     let hasError = false;
 
     if (!question.trim()) {
@@ -100,12 +143,25 @@ export default function QuestionScreen() {
     }
 
     if (hasError) {
-      // If there are errors, do not proceed further
       return;
     }
 
-    // Proceed with the call action if no errors
-    console.log("Calling action triggered...");
+    try {
+      const response = await fetch('http://localhost:5000/api/users/save-question', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId, question, questionType: selectedSkill }),
+      });
+      if (!response.ok) {
+        throw new Error('Failed to save question');
+      }
+      Alert.alert('Success', 'Your question has been saved.');
+    } catch (error) {
+      console.error('Error saving question:', error);
+      Alert.alert('Error', 'Failed to save question. Please try again.');
+    }
   };
 
 

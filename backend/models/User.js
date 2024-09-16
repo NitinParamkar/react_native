@@ -22,7 +22,13 @@ const UserSchema = new mongoose.Schema({
   learnerSkills: [String],
   guruSkills: [String],
   countryCode: String,
-  phoneNumber: String
+  phoneNumber: String,
+  toggleStatus: {
+    type: Boolean,
+    default: false
+  },
+  question: String,
+  questionType: String
 }, { timestamps: true });
 
 module.exports = mongoose.model('User', UserSchema);

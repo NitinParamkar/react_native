@@ -7,5 +7,8 @@ router.put('/join-option', userController.updateJoinOption);
 router.put('/skills', userController.updateSkills);
 router.put('/contact', userController.updateContact);
 router.put('/edit', userController.edit);
+router.put('/toggle-status', userController.updateToggleStatus);
+router.put('/save-question', userController.saveQuestion);
+router.get('/user-data/:userId', userController.getUserData);
 
 module.exports = router;
