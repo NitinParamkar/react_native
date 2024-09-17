@@ -14,11 +14,13 @@ export default function SignupScreen() {
   const [fullNameError, setFullNameError] = useState(false);
   const [emailError, setEmailError] = useState(null);
   const [passwordError, setPasswordError] = useState(false);
+  const [signupError, setSignupError] = useState(null);
 
   const router = useRouter();
 
   const handleSignUp = async() => {
     let hasError = false;
+    setSignupError(null);
     
     // Validate Full Name
     if (!fullName) {
@@ -84,12 +86,21 @@ export default function SignupScreen() {
         } else {
           console.error('Signup failed:', data.message);
           Alert.alert('Error', data.message || 'An error occurred during signup');
+          setSignupError('Account with this email id already exists.');
         }
       } catch (error) {
-        console.error('Error in network request:', error);
-        Alert.alert('Error', 'Network error. Please try again.');
+        if (error.response && error.response.status === 500) {
+          setSignupError('Account with this email id already exists.');
+        } else {
+          setSignupError('unknown error occurred. Please try again.');
+        }
+        // Do not redirect to home page on error
       }
     }
+  };
+
+  const handleLogin = () => {
+    router.push('/login');
   };
   
 
@@ -140,8 +151,15 @@ export default function SignupScreen() {
       </View>
       {passwordError && <Text style={styles.errorText}>This field is required</Text>}
 
+      {signupError && <Text style={styles.signupErrorText}>{signupError}</Text>}
       <TouchableOpacity style={styles.signupButton} onPress={handleSignUp}>
         <Text style={styles.signupButtonText}>Sign up</Text>
+      </TouchableOpacity>
+
+      <Text style={styles.orText}>or</Text>
+
+      <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+        <Text style={styles.loginButtonText}>Log in</Text>
       </TouchableOpacity>
 
       <Text style={styles.orText}>or Login with</Text>
@@ -227,6 +245,20 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
+  loginButton: {
+    backgroundColor: '#007BFF',
+    borderRadius: 8,
+    paddingVertical: 12,
+    alignItems: 'center',
+    marginLeft: '20%',
+    marginBottom: 20,
+    width: '60%',
+  },
+  loginButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
   orText: {
     fontSize: 14,
     textAlign: 'center',
@@ -254,6 +286,13 @@ const styles = StyleSheet.create({
   errorText: {
     color: 'red',
     fontSize: 12,
+    marginBottom: 10,
+  },
+  signupErrorText: {
+    color: 'red',
+    fontSize: 14,
+    textAlign: 'center',
+    marginTop: 10,
     marginBottom: 10,
   },
 });

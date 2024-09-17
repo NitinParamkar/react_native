@@ -115,3 +115,29 @@ exports.getUserData = async (req, res) => {
     res.status(500).json({ message: 'Error fetching user data', error: error.message });
   }
 };
+
+exports.login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // Find user by email
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(401).json({ message: 'Invalid email or password' });
+    }
+
+    // Check password
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Invalid email or password' });
+    }
+
+    // If email and password match
+    res.status(200).json({ message: 'Login successful', userId: user._id });
+  } catch (error) {
+    console.error('Error during login:', error);
+    res.status(500).json({ message: 'Error during login', error: error.message });
+  }
+};
