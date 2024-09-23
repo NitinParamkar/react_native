@@ -1,47 +1,46 @@
-const cors = require('cors');
 const express = require('express');
-const socket = require('socket.io');
-const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser');
-const { ExpressPeerServer } = require('peer');
+const dotenv = require('dotenv');
+const connectDB = require('./config/db');
+const userRoutes = require('./routes/userRoutes');
+const cors = require('cors');
+const path = require('path');
+const fs = require('fs');
+
+dotenv.config();
 
 const app = express();
-const connect = require("./config/database");
 
-require('dotenv').config();
-const port = process.env.PORT || 4000;
+// Debugging: Log the current directory and important paths
+console.log('Current directory:', __dirname);
+console.log('User model path:', path.join(__dirname, 'models', 'User.js'));
+console.log('User model exists:', fs.existsSync(path.join(__dirname, 'models', 'User.js')));
 
-app.use(cors({
-    origin: process.env.REACT_APP_URL,
-    credentials: true,
-}));
+// Connect to MongoDB
+connectDB();
 
-app.use(cookieParser());
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: false}));
+// Middleware
+app.use(cors());
+app.use(express.json());
 
-app.use(require("./routes/index"));
-
-const server = app.listen(port, async () => {
-    try {
-        await connect();
-        console.log('Mongodb connected');
-        console.log(`Server Running on PORT: ${port}`);
-    } catch (error) {
-        console.error(error);
-    }
+// Debugging: Log requests
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+  next();
 });
 
-const io = socket(server, {
-    cors: {
-        origin: process.env.REACT_APP_URL
-    }
+// Routes
+app.use('/api/users', userRoutes);
+
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+// Global error handler
+app.use((err, req, res, next) => {
+  console.error('Unhandled error:', err);
+  res.status(500).json({ message: 'Internal server error', error: err.message });
 });
 
-const peerServer = ExpressPeerServer(server, {
-    debug: true,
-})
-
-app.use("/peerjs", peerServer);
-
-require("./utils/socket")(io);
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+});
