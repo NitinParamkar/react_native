@@ -2,11 +2,13 @@ const cors = require('cors');
 const express = require('express');
 const socket = require('socket.io');
 const bodyParser = require('body-parser');
+//const AgoraRTC = require('agora-rtc-sdk');
 const cookieParser = require('cookie-parser');
 const { ExpressPeerServer } = require('peer');
 
 const app = express();
 const connect = require("./config/database");
+//const client = AgoraRTC.createClient({mode: "rtc", codec: "vp8"});
 
 require('dotenv').config();
 const port = process.env.PORT || 4000;

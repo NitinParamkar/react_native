@@ -43,12 +43,16 @@ export default function ContactScreen() {
 
     if (isValid) {
       try {
-        const response = await fetch('http://localhost:5000/api/users/contact', {
+        const response = await fetch('http://localhost:4000/v1/api/user', {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ userId, countryCode, phoneNumber }),
+          credentials: 'include',
+          body: JSON.stringify({ 
+            countryCode, 
+            phoneNumber 
+          }),
         });
 
         if (response.ok) {

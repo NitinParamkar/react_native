@@ -1,92 +1,87 @@
-//skilloptionslearner.tsx
+//joinoptions.tsx
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, FlatList, Modal, Alert } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 
-export default function Selectskills() {
+export default function JoinAsLearnerAndGuru() {
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedSkills, setSelectedSkills] = useState([]);
+  const [selectedRoles, setSelectedRoles] = useState([]);
   const [showError, setShowError] = useState(false);
-  
   const router = useRouter();
-  const { userId, joinOption } = useLocalSearchParams();
+  const { userId } = useLocalSearchParams();
+
+  console.log('JoinAsLearnerAndGuru rendered. Received userId:', userId);
 
   const options = [
-    { label: 'Figma', value: 'Figma' },
-    { label: 'App Development', value: 'App Development' },
-    { label: 'Power BI', value: 'Power BI' },
-    { label: 'Photoshop', value: 'Photoshop' },
-    { label: 'Web Development', value: 'Web Development' },
-    { label: 'UI/UX Design', value: 'UI/UX Design' },
-    { label: 'Data Analysis', value: 'Data Analysis' },
-    { label: 'Graphic Design', value: 'Graphic Design' },
-    { label: 'Content Creation', value: 'Content Creation' },
-    { label: 'Cloud Computing', value: 'Cloud Computing' },
-    { label: 'SEO Optimization', value: 'SEO Optimization' },
-    { label: 'Machine Learning', value: 'Machine Learning' },
-    { label: 'Digital Marketing', value: 'Digital Marketing' },
-    { label: 'Blockchain', value: 'Blockchain' },
-    { label: 'Artificial Intelligence', value: 'Artificial Intelligence' },
-    { label: 'Game Development', value: 'Game Development' },
-    { label: 'Cybersecurity', value: 'Cybersecurity' },
-    { label: 'DevOps', value: 'DevOps' },
-    { label: '3D Modeling', value: '3D Modeling' },
-    { label: 'Video Editing', value: 'Video Editing' },
-    { label: 'Database Management', value: 'Database Management' },
-    { label: 'Animation', value: 'Animation' },
-    { label: 'Cloud Architecture', value: 'Cloud Architecture' },
-    { label: 'Product Management', value: 'Product Management' },
-    { label: 'Salesforce', value: 'Salesforce' },
-    { label: 'React Native', value: 'React Native' },
-    { label: 'Next.js', value: 'Next.js' },
-    { label: 'Backend Development', value: 'Backend Development' },
-    { label: 'Others', value: 'Others' },
+    { label: 'Learner', value: 'Learner' },
+    { label: 'Guru', value: 'Guru' },
   ];
 
-  const toggleSkill = (value) => {
-    setSelectedSkills(prevSkills => {
-      if (prevSkills.includes(value)) {
-        return prevSkills.filter(skill => skill !== value);
+  const toggleRole = (value) => {
+    setSelectedRoles(prevRoles => {
+      if (prevRoles.includes(value)) {
+        return prevRoles.filter(role => role !== value);
       } else {
-        return [...prevSkills, value];
+        return [...prevRoles, value];
       }
     });
     setShowError(false);
   };
 
   const handleNext = async () => {
-    if (selectedSkills.length === 0) {
+    console.log('handleNext called. Selected roles:', selectedRoles);
+
+    if (selectedRoles.length === 0) {
       setShowError(true);
       return;
     }
 
+    let joinOption;
+    if (selectedRoles.includes('Guru') && selectedRoles.includes('Learner')) {
+      joinOption = 'Both';
+    } else if (selectedRoles.includes('Guru')) {
+      joinOption = 'Guru';
+    } else {
+      joinOption = 'Learner';
+    }
+
+    console.log('Determined joinOption:', joinOption);
+
     try {
-      // Update the user's learnerSkills in the database
-      const response = await fetch('http://localhost:5000/api/users/skills', {
+      // Update the user's joinOption in the database
+      const response = await fetch('http://localhost:4000/v1/api/user', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ 
-          userId, 
-          skills: selectedSkills,
-          skillType: 'learner'
-        }),
+        credentials: 'include',
+        body: JSON.stringify(
+          { userId, joinOption }
+        )
       });
       
       if (response.ok) {
         const data = await response.json();
-        console.log('User learnerSkills updated successfully:', data);
+        console.log('User joinOption updated successfully:', data);
         
-        // Navigate to the contact page
-        router.push({
-          pathname: '/contact',
-          params: { userId, joinOption }
-        });
+        // Navigate to the appropriate page
+        if (joinOption === 'Learner') { 
+          console.log('Navigating to skilloptionslearner');
+          router.push({
+            pathname: '/skilloptionslearner',
+            params: { userId, joinOption }
+          });
+        } else {
+          console.log('Navigating to skilloptionsguru');
+          router.push({
+            pathname: '/skilloptionsguru',
+            params: { userId, joinOption }
+          });
+        }
       } else {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to update user learnerSkills');
+        throw new Error(errorData.message || 'Failed to update user joinOption');
       }
     } catch (error) {
       console.error('Error:', error);
@@ -100,20 +95,20 @@ export default function Selectskills() {
         <AntDesign name="arrowleft" size={24} color="black" />
       </TouchableOpacity>
 
-      <Text style={styles.headerText}>Empower your career: Select your target skills</Text>
-      <Text style={styles.subText}>'Discover, ask, and grow'</Text>
+      <Text style={styles.headerText}>Join as Learner & Guru</Text>
+      <Text style={styles.subText}>Learn and share.</Text>
 
       <TouchableOpacity
         style={[styles.dropdownButton, showError && styles.errorBorder]}
         onPress={() => setModalVisible(true)}
       >
-        <Text style={[styles.dropdownText, { color: selectedSkills.length === 0 ? '#D3D3D3' : 'black' }]}>
-          {selectedSkills.length > 0 ? selectedSkills.join(', ') : 'Choose your skills here'}
+        <Text style={[styles.dropdownText, { color: selectedRoles.length === 0 ? '#D3D3D3' : 'black' }]}>
+          {selectedRoles.length > 0 ? selectedRoles.join(', ') : 'Choose your role here'}
         </Text>
         <AntDesign name="down" size={20} color="#D3D3D3" />
       </TouchableOpacity>
 
-      {showError && <Text style={styles.errorText}>Please select your skills</Text>}
+      {showError && <Text style={styles.errorText}>Please select your role</Text>}
 
       <Modal
         transparent={true}
@@ -129,10 +124,10 @@ export default function Selectskills() {
               renderItem={({ item }) => (
                 <TouchableOpacity
                   style={styles.optionContainer}
-                  onPress={() => toggleSkill(item.value)}
+                  onPress={() => toggleRole(item.value)}
                 >
-                  <View style={[styles.checkbox, selectedSkills.includes(item.value) && styles.checkedBox]}>
-                    {selectedSkills.includes(item.value) && (
+                  <View style={[styles.checkbox, selectedRoles.includes(item.value) && styles.checkedBox]}>
+                    {selectedRoles.includes(item.value) && (
                       <AntDesign name="check" size={16} color="#FFFFFF" />
                     )}
                   </View>
@@ -245,7 +240,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '60%',
     marginLeft: '20%',
-    marginBottom: 80,
   },
   doneButtonText: {
     color: '#FFFFFF',

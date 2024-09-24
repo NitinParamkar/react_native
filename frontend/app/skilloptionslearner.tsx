@@ -1,4 +1,4 @@
-//skilloptionsguru.tsx
+//skilloptionslearner.tsx
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, FlatList, Modal, Alert } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
@@ -62,38 +62,31 @@ export default function Selectskills() {
     }
 
     try {
-      // Update the user's guruSkills in the database
-      const response = await fetch('http://localhost:5000/api/users/skills', {
+      // Update the user's learnerSkills in the database
+      const response = await fetch('http://localhost:4000/v1/api/user', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({ 
-          userId, 
           skills: selectedSkills,
-          skillType: 'guru'
+          skillType: 'learn'
         }),
       });
       
       if (response.ok) {
         const data = await response.json();
-        console.log('User guruSkills updated successfully:', data);
+        console.log('User learnerSkills updated successfully:', data);
         
-        // Navigate to the appropriate page based on joinOption
-        if (joinOption === 'Both') {
-          router.push({
-            pathname: '/skilloptionslearner',
-            params: { userId, joinOption }
-          });
-        } else {
-          router.push({
-            pathname: '/contact',
-            params: { userId, joinOption }
-          });
-        }
+        // Navigate to the contact page
+        router.push({
+          pathname: '/contact',
+          params: { userId, joinOption }
+        });
       } else {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to update user guruSkills');
+        throw new Error(errorData.message || 'Failed to update user learnerSkills');
       }
     } catch (error) {
       console.error('Error:', error);
@@ -107,8 +100,8 @@ export default function Selectskills() {
         <AntDesign name="arrowleft" size={24} color="black" />
       </TouchableOpacity>
 
-      <Text style={styles.headerText}>Share your skills with us</Text>
-      <Text style={styles.subText}>'Guide and Inspire'</Text>
+      <Text style={styles.headerText}>Empower your career: Select your target skills</Text>
+      <Text style={styles.subText}>'Discover, ask, and grow'</Text>
 
       <TouchableOpacity
         style={[styles.dropdownButton, showError && styles.errorBorder]}

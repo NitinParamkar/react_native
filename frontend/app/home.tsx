@@ -27,7 +27,7 @@ export default function QuestionScreen() {
   const fetchUserData = async () => {
     if (!userId) return; // Add this check to prevent unnecessary API calls
     try {
-      const response = await fetch(`http://localhost:5000/api/users/user-data/${userId}`);
+      const response = await fetch(`http://localhost:4000/v1/api/users`);
       if (response.ok) {
         const data = await response.json();
         setIsEnabled(data.toggleStatus);
@@ -57,12 +57,15 @@ export default function QuestionScreen() {
     }).start();
 
     try {
-      const response = await fetch('http://localhost:5000/api/users/toggle-status', {
+      const response = await fetch('http://localhost:4000/v1/api/user', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ userId, toggleStatus: newStatus }),
+        credentials: 'include',
+        body: JSON.stringify({
+          isAvaliable: isEnabled 
+        })
       });
       if (!response.ok) {
         throw new Error('Failed to update toggle status');
@@ -127,7 +130,7 @@ export default function QuestionScreen() {
 
   const handleCallButtonPress = async () => {
     let hasError = false;
-
+    router.push({ pathname: `/doubtSession`, params: { chnnaelName: encodeURIComponent(`${"test"}`) }});
     if (!question.trim()) {
       setShowQuestionError(true);
       hasError = true;
@@ -147,17 +150,34 @@ export default function QuestionScreen() {
     }
 
     try {
-      const response = await fetch('http://localhost:5000/api/users/save-question', {
-        method: 'PUT',
+      const response = await fetch('http://localhost:4000/v1/api/doubt', {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ userId, question, questionType: selectedSkill }),
+        credentials: 'include',
+        body: JSON.stringify({ 
+          doubt: question, 
+          topic: selectedSkill 
+        })
       });
+
+      const data = await response.json();
+
+      if (response.status === 201 && data.userId) {
+        // Login successfulf
+        console.log(data._id);
+        router.push(`/doubtSession`);
+      } else {
+        // This shouldn't happen if the backend is set up correctly, but just in case
+        console.log('An unexpected error occurred. Please try again.');
+      }
+
+      /*
       if (!response.ok) {
         throw new Error('Failed to save question');
       }
-      Alert.alert('Success', 'Your question has been saved.');
+      Alert.alert('Success', 'Your question has been saved.');*/
     } catch (error) {
       console.error('Error saving question:', error);
       Alert.alert('Error', 'Failed to save question. Please try again.');
@@ -173,6 +193,7 @@ const handleEdit = async() => {
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include',
       body: JSON.stringify({ userId}),
     });
     

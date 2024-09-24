@@ -66,12 +66,17 @@ export default function SignupScreen() {
     // If no errors, print the data and reset the fields
     if (!hasError) {
       try {
-        const response = await fetch('http://localhost:5000/api/users/signup', {
+        const response = await fetch('http://localhost:4000/v1/api/signup', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ fullName, email, password }),
+          credentials: 'include',
+          body: JSON.stringify({ 
+            username: fullName, 
+            email: email, 
+            password: password, 
+          }),
         });
   
         const data = await response.json();

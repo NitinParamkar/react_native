@@ -48,14 +48,23 @@ export default function LoginScreen() {
     }
 
     try {
-      const response = await axios.post('http://localhost:5000/api/users/login', {
-        email,
-        password
+      const response = await fetch('http://localhost:4000/v1/api/signin', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify({ 
+            email: email, 
+            password: password, 
+          }),
       });
 
-      if (response.status === 200 && response.data.userId) {
+      const data = await response.json();
+
+      if (response.status === 201 && data.userId) {
         // Login successful
-        router.push(`/home?userId=${response.data.userId}`);
+        router.push(`/home?userId=${data.userId}`);
       } else {
         // This shouldn't happen if the backend is set up correctly, but just in case
         setLoginError('An unexpected error occurred. Please try again.');

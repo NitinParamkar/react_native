@@ -5,7 +5,7 @@ require('dotenv').config();
 const jwtSecret = process.env.SECRET;
 
 const createUser = (req, res, next) => {
-    const {username, email, password, userType, skillSet} = req.body;
+    const {username, email, password, userType, phoneNo} = req.body;
 
     try {
         User.findOne({
@@ -23,8 +23,8 @@ const createUser = (req, res, next) => {
                     username,
                     email,
                     password,
-                    skillSet,
                     userType,
+                    phoneNo,
                 })
                 .then((data) => {
                     res.send(data);
@@ -44,11 +44,11 @@ const createUser = (req, res, next) => {
 
 const getUser = (req, res, next) => {
 
-    const username = req.query.username;
+    const email = req.query.email;
 
     try {
         User.findOne({
-           username
+           email
         })
         .then((data) => {
             if(data) {
@@ -116,10 +116,66 @@ const isAvaliable = (req, res, next) => {
     }
 }
 
+const updateUser = (req, res, next) => {
 
+    const userID = jwt.verify(req.cookies.jwt, process.env.SECRET).id;
+
+    try {
+        User.findById(userID)
+        .then((data) => {
+            
+            let skillSet = [];
+            const skillType = req.body.skillType;
+
+            if(skillType === "teach") {
+                skillSet = data.skillsToTeach || [];
+                const skills = req.body.skills;
+
+                skills.forEach(skill => {
+                    skillSet.push(skill);
+                });
+            } else if(skillType === "learn") {
+                skillSet = data.skillsToLearn || [];
+                const skills = req.body.skills;
+
+                skills.forEach(skill => {
+                    skillSet.push(skill);
+                });
+            }
+
+            User.findByIdAndUpdate(
+                { _id:  userID },
+                {$set: {
+                    email : req.body.email || data.email,
+                    phoneNo : req.body.phoneNo || data.phoneNo,
+                    password : req.body.password || data.password,
+                    userType : req.body.userType || data.userType,
+                    countryCode: req.body.countryCode || data.countryCode,
+                    isAvaliable : req.body.isAvaliable || data.isAvaliable,
+                    skillsToLearn : req.body.skillsToLearn || data.skillSet,
+                    skillsToTeach : (req.skillType === "teach") ? skillSet : data.skillSet,
+                }}
+            )
+            .then(() => {
+                res.status(201).json({
+                    message: "User information updated Successfully",
+                });
+            })
+        })
+
+    } catch (err) {
+        console.error(err);
+
+        res.status(401).json({
+            message: "Some error occured",
+            error: err
+        })
+    }
+}
 
 module.exports = {
     createUser,
     getUser,
-    findUser
+    findUser,
+    updateUser,
 }

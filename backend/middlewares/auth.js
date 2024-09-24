@@ -8,7 +8,7 @@ const register =  async (req, res, next) => {
     try {
         const hash = await bcrypt.hash(req.body.password, 10);
 
-        fetch(`${process.env.BASE_URL}/v1/api/create-user`, {
+        fetch(`${process.env.BASE_URL}/v1/api/user`, {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json'
@@ -60,10 +60,10 @@ const register =  async (req, res, next) => {
 
 const login = (req, res, next) => {
 
-    const { username, password } = req.body;
+    const { email, password } = req.body;
 
     try {
-        fetch(`${process.env.BASE_URL}/v1/api/get-user/?username=${username}`, {
+        fetch(`${process.env.BASE_URL}/v1/api/user/?email=${email}`, {
             method: "GET",
             headers: {
                 'Content-Type': 'application/json'
@@ -89,9 +89,10 @@ const login = (req, res, next) => {
                         sameSite: "none",
                         secure: "false",
                     });
-                    
+                    console.log(data);
                     res.status(201).json({
                         message: "Login Successful",
+                        userId: data._id
                     });
                 } else {
                     res.status(403).json({

@@ -11,10 +11,6 @@ const doubtSchema = new mongoose.Schema({
     doubt: {
         type: String
     },
-    method: {
-        type: String,
-        enum: ["audio_call", "video_call"]
-    },
     status: {
         type: String,
         enum: ["pending", "accepted"],
