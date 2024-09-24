@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import "../app/style.css"
 
 import {
@@ -13,12 +13,14 @@ import {
     useRemoteUsers,
   } from "agora-rtc-react";
 
+import { useLocalSearchParams } from "expo-router";
+
 
 export const LiveVideo = () => {
 
   const appId = "cfd93b562c534dcd8775521455650c76";
   // const agoraEngine = useRTCClient( AgoraRTC.createClient({ codec: "vp8", mode: "rtc" })); // Initialize Agora Client
-  const { channelName } = useParams() //pull the channel name from the param
+  const { channelName } = useLocalSearchParams() //pull the channel name from the param
 
   // set the connection state
   const [activeConnection, setActiveConnection] = useState(true);

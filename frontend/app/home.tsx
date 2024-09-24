@@ -130,7 +130,7 @@ export default function QuestionScreen() {
 
   const handleCallButtonPress = async () => {
     let hasError = false;
-    router.push({ pathname: `/doubtSession`, params: { chnnaelName: encodeURIComponent(`${"test"}`) }});
+    router.push({ pathname: `/doubtSession`, params: { channelName: encodeURIComponent(`${"test"}`) }});
     if (!question.trim()) {
       setShowQuestionError(true);
       hasError = true;
