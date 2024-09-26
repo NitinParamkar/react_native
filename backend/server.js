@@ -1,14 +1,13 @@
 const express = require('express');
-const dotenv = require('dotenv');
-const connectDB = require('./config/db');
-const userRoutes = require('./routes/userRoutes');
-const cors = require('cors');
-const path = require('path');
-const fs = require('fs');
-
-dotenv.config();
+const socket = require('socket.io');
+const bodyParser = require('body-parser');
+//const AgoraRTC = require('agora-rtc-sdk');
+const cookieParser = require('cookie-parser');
+const { ExpressPeerServer } = require('peer');
 
 const app = express();
+const connect = require("./config/database");
+//const client = AgoraRTC.createClient({mode: "rtc", codec: "vp8"});
 
 // Debugging: Log the current directory and important paths
 console.log('Current directory:', __dirname);
