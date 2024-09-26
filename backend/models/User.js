@@ -1,34 +1,44 @@
 const mongoose = require('mongoose');
 
-const UserSchema = new mongoose.Schema({
-  fullName: {
-    type: String,
-    required: true
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true
-  },
-  password: {
-    type: String,
-    required: true
-  },
-  joinOption: {
-    type: String,
-    enum: ['Learner', 'Guru', 'Both'],
-    default: 'Learner'
-  },
-  learnerSkills: [String],
-  guruSkills: [String],
-  countryCode: String,
-  phoneNumber: String,
-  toggleStatus: {
-    type: Boolean,
-    default: false
-  },
-  question: String,
-  questionType: String
-}, { timestamps: true });
+const userSchema = new mongoose.Schema({
+    username: {
+      min: 3,
+      max: 30,
+      type: String,
+      unique: true,
+      required: true,
+    },
+    email: {
+      type: String,
+      require: true,
+      unique: true,
+      lowercase: true
+    },
+    password: {
+      type: String,
+      require: true
+    },
+    countryCode: {
+      type: String,
+      default: "+91"
+    },
+    phoneNo: {
+      type: Number
+    },
+    userType: {
+      type: String,
+      enum: ["student", "mentor", "both"],
+      default: "student"
+    },
+    skillsToTeach: [],
+    skillsToLearn: [],
+    isAvaliable: {
+      type: Boolean,
+      default: false
+    }
+    
+}, {timestamps: true});
 
-module.exports = mongoose.model('User', UserSchema);
+const User = mongoose.model('User', userSchema);
+
+module.exports = User;
