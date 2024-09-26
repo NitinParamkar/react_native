@@ -63,7 +63,7 @@ export default function Selectskills() {
 
     try {
       // Update the user's guruSkills in the database
-      const response = await fetch('http://localhost:4000/v1/api/user', {
+      const response = await fetch(`${process.env.API_KEY}/v1/api/user`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

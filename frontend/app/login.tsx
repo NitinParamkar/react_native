@@ -4,7 +4,9 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-nativ
 import { FontAwesome5 } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { AntDesign } from '@expo/vector-icons';
-import axios from 'axios';
+import { MMKV } from 'react-native-mmkv';
+
+export const storage = new MMKV();
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
@@ -48,7 +50,7 @@ export default function LoginScreen() {
     }
 
     try {
-      const response = await fetch('http://localhost:4000/v1/api/signin', {
+      const response = await fetch(`${process.env.API_KEY}/v1/api/signin`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -64,7 +66,10 @@ export default function LoginScreen() {
 
       if (response.status === 201 && data.userId) {
         // Login successful
-        router.push(`/home?userId=${data.userId}`);
+        storage.set('user.userId', data.userId);
+        storage.set('user.userType', data.userType);
+        
+        router.push(`/home`);
       } else {
         // This shouldn't happen if the backend is set up correctly, but just in case
         setLoginError('An unexpected error occurred. Please try again.');

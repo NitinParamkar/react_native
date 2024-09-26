@@ -13,12 +13,12 @@ import {
     useRemoteUsers,
   } from "agora-rtc-react";
 
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 
 
 export const LiveVideo = () => {
 
-  const appId = "cfd93b562c534dcd8775521455650c76";
+  const appId = process.env.AGORA_APP_ID;
   // const agoraEngine = useRTCClient( AgoraRTC.createClient({ codec: "vp8", mode: "rtc" })); // Initialize Agora Client
   const { channelName } = useLocalSearchParams() //pull the channel name from the param
 
@@ -91,6 +91,7 @@ export const LiveVideo = () => {
             <button id="endConnection"
                 onClick={() => {
                   setActiveConnection(false)
+                  router.push('/home');
                 }}> Disconnect
             </button>
           </div>

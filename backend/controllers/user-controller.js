@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const { Types, isValidObjectId } = require('mongoose');
 const User = require("../models/user");
 
 require('dotenv').config();
@@ -44,11 +45,17 @@ const createUser = (req, res, next) => {
 
 const getUser = (req, res, next) => {
 
-    const email = req.query.email;
+    const userCredentials = req.query.userCredentials;
 
     try {
         User.findOne({
-           email
+            '$or': [{
+                _id: isValidObjectId(userCredentials) ? new Types.ObjectId(userCredentials) : null
+            },{
+                email: userCredentials
+            },{
+                username: userCredentials
+            }]
         })
         .then((data) => {
             if(data) {

@@ -66,7 +66,7 @@ export default function SignupScreen() {
     // If no errors, print the data and reset the fields
     if (!hasError) {
       try {
-        const response = await fetch('http://localhost:4000/v1/api/signup', {
+        const response = await fetch(`${process.env.API_KEY}/v1/api/signup`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

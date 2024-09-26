@@ -1,9 +1,12 @@
 //home.tsx
 import React, { useState, useEffect } from 'react';
-import { View, TextInput, TouchableOpacity, StyleSheet, Animated, Modal, Text, FlatList, Alert } from 'react-native';
+import { View, TextInput, TouchableOpacity, StyleSheet, Animated, Modal, Text, FlatList, Alert, Button } from 'react-native';
 import { AntDesign, Entypo } from '@expo/vector-icons';
 import { Dimensions } from 'react-native';
 import { Link, useRouter, useLocalSearchParams } from 'expo-router';
+import socketIO from 'socket.io-client';
+
+import { storage } from './login';
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -16,21 +19,35 @@ export default function QuestionScreen() {
   const [showQuestionError, setShowQuestionError] = useState(false);
   const [showSkillError, setShowSkillError] = useState(false);
   const [menuVisible, setMenuVisible] = useState(false);
-
+  const [incoming, setIncoming] = useState(false);
   const router = useRouter();
-  const { userId } = useLocalSearchParams();
+
+  const socket = socketIO(process.env.API_KEY);
+  const userID = storage.getString('user.userId');
+  const userType = storage.getString('user.userType');
   
   useEffect(() => {
+    socket.emit('user-online', {
+      id: userID,
+      type: userType,
+    });
     fetchUserData();
-  }, [userId]);
+  }, []);
 
   const fetchUserData = async () => {
-    if (!userId) return; // Add this check to prevent unnecessary API calls
     try {
-      const response = await fetch(`http://localhost:4000/v1/api/users`);
-      if (response.ok) {
+
+      const response = await fetch(`${process.env.API_KEY}/v1/api/user?userCredentials=${userID}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+      });
+      if (response.status === 201) {
         const data = await response.json();
-        setIsEnabled(data.toggleStatus);
+
+        setIsEnabled(data.isAvaliable);
         setQuestion(data.question || '');
         setSelectedSkill(data.questionType || '');
         // Set the initial animation value based on the toggle status
@@ -49,6 +66,7 @@ export default function QuestionScreen() {
 
   const toggleSwitch = async () => {
     const newStatus = !isEnabled;
+    setIncoming(true);
     setIsEnabled(newStatus);
     Animated.timing(animation, {
       toValue: newStatus ? 1 : 0,
@@ -57,7 +75,7 @@ export default function QuestionScreen() {
     }).start();
 
     try {
-      const response = await fetch('http://localhost:4000/v1/api/user', {
+      const response = await fetch(`${process.env.API_KEY}/v1/api/user`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -130,7 +148,7 @@ export default function QuestionScreen() {
 
   const handleCallButtonPress = async () => {
     let hasError = false;
-    router.push({ pathname: `/doubtSession`, params: { channelName: encodeURIComponent(`${"test"}`) }});
+
     if (!question.trim()) {
       setShowQuestionError(true);
       hasError = true;
@@ -150,7 +168,7 @@ export default function QuestionScreen() {
     }
 
     try {
-      const response = await fetch('http://localhost:4000/v1/api/doubt', {
+      const response = await fetch(`${process.env.API_KEY}/v1/api/doubt`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -162,12 +180,16 @@ export default function QuestionScreen() {
         })
       });
 
-      const data = await response.json();
+      if (response.status === 201) {
+        const data = await response.json();
+        // Login successfull
 
-      if (response.status === 201 && data.userId) {
-        // Login successfulf
-        console.log(data._id);
-        router.push(`/doubtSession`);
+        socket.emit('doubt', {
+          userID: userID,
+          question: question
+        })
+        
+        //router.push({ pathname: `/doubtSession`, params: { channelName: encodeURIComponent(`${"test"}`) }});
       } else {
         // This shouldn't happen if the backend is set up correctly, but just in case
         console.log('An unexpected error occurred. Please try again.');
@@ -185,40 +207,46 @@ export default function QuestionScreen() {
   };
 
 
-const handleEdit = async() => {
-  try {
-    // Update the user's joinOption in the database
-    const response = await fetch('http://localhost:5000/api/users/edit', {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include',
-      body: JSON.stringify({ userId}),
-    });
-    
-    if (response.ok) {
-      const data = await response.json();
-      console.log('User joinOption updated successfully:', data);
-      
-      // Navigate to the appropriate page
-      
-      setMenuVisible(false);
-      router.push({
-        pathname: '/joinoptions',
-        params: { userId }
+  const handleEdit = async() => {
+    try {
+      // Update the user's joinOption in the database
+      const response = await fetch(`${process.env.API_KEY}/api/users/edit`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ userId}),
       });
-    
-    } else {
-      const errorData = await response.json();
-      throw new Error(errorData.message || 'Failed to edit user joinOption');
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('User joinOption updated successfully:', data);
+        
+        // Navigate to the appropriate page
+        
+        setMenuVisible(false);
+        router.push({
+          pathname: '/joinoptions',
+          params: { userId }
+        });
+      
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to edit user joinOption');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      Alert.alert('Error', 'Failed to edit user information. Please try again.');
     }
-  } catch (error) {
-    console.error('Error:', error);
-    Alert.alert('Error', 'Failed to edit user information. Please try again.');
-  }
-};
+  };
 
+  socket.on('doubt', (data) => {
+    //router.push({ pathname: `/doubtSession`, params: { channelName: encodeURIComponent(`${"test"}`) }});
+    if(data.userID !== userID && isEnabled) {
+      
+    }
+  })
 
 
   return (
@@ -228,6 +256,23 @@ const handleEdit = async() => {
         <Entypo name="menu" size={30} color="black" />
       </TouchableOpacity>
 
+      <Modal
+        transparent={true}
+        visible={incoming}
+        onRequestClose={() => setIncoming(false)}
+        animationType="none"
+      >
+        <TouchableOpacity style={styles.menuModalOverlay} onPress={() => setMenuVisible(false)}>
+          <View style={styles.menuModal}>
+            <TouchableOpacity>
+              <Text style={styles.menuText}>Jhon doe needs your help</Text>
+              <Button title='Accept' color={"#48d948"}/>
+              <Button title='Decline' onPress={() => setIncoming(false)} color={"#FF0000"}/>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
       {/* Hamburger Menu Modal */}
       <Modal
         transparent={true}
@@ -235,8 +280,8 @@ const handleEdit = async() => {
         onRequestClose={() => setMenuVisible(false)}
         animationType="none"
       >
-        <TouchableOpacity style={styles.menuModalOverlay} onPress={() => setMenuVisible(false)}>
-          <View style={styles.menuModal}>
+        <TouchableOpacity style={styles.callModalOverlay} onPress={() => setMenuVisible(false)}>
+          <View style={styles.callModal}>
             <TouchableOpacity 
               style={styles.menuItem}
               onPress={handleEdit}
@@ -351,6 +396,14 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 60,
     left: 20,
+  },
+  callModalOverlay: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  callModal: {
+
   },
   menuModalOverlay: {
     flex: 1,

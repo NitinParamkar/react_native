@@ -43,7 +43,7 @@ export default function ContactScreen() {
 
     if (isValid) {
       try {
-        const response = await fetch('http://localhost:4000/v1/api/user', {
+        const response = await fetch(`${process.env.API_KEY}/v1/api/user`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -58,10 +58,7 @@ export default function ContactScreen() {
         if (response.ok) {
           const data = await response.json();
           console.log('User contact details updated successfully:', data);
-          router.push({
-            pathname: '/home',
-            params: { userId }
-          });
+          router.push('/home');
         } else {
           const errorData = await response.json();
           throw new Error(errorData.message || 'Failed to update contact details');

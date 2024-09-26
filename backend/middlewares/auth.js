@@ -24,7 +24,7 @@ const register =  async (req, res, next) => {
             if(!data.userExist) {
                 const maxAge = 3*60*60;
                 const token = jwt.sign(
-                    { id: data._id, username: req.body.username },
+                    { id: data._id, username: req.body.username, userType: req.body.userType },
                     jwtSecret,
                     {
                         expiresIn: maxAge,
@@ -38,6 +38,8 @@ const register =  async (req, res, next) => {
 
                 res.status(200).json({
                     message: "User successfully created",
+                    userId: data._id,
+                    userType: data.userType
                 })
 
             } else {
@@ -63,7 +65,7 @@ const login = (req, res, next) => {
     const { email, password } = req.body;
 
     try {
-        fetch(`${process.env.BASE_URL}/v1/api/user/?email=${email}`, {
+        fetch(`${process.env.BASE_URL}/v1/api/user/?userCredentials=${email}`, {
             method: "GET",
             headers: {
                 'Content-Type': 'application/json'
@@ -76,7 +78,7 @@ const login = (req, res, next) => {
                 if (result) {
                     const maxAge = 3*60*60;
                     const token = jwt.sign(
-                        {id: data._id, username: req.body.username},
+                        {id: data._id, username: req.body.username, userType: req.body.userType},
                         jwtSecret,
                         {
                             expiresIn: maxAge,
@@ -92,7 +94,8 @@ const login = (req, res, next) => {
                     console.log(data);
                     res.status(201).json({
                         message: "Login Successful",
-                        userId: data._id
+                        userId: data._id,
+                        userType: data.userType
                     });
                 } else {
                     res.status(403).json({
